@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "305586759008",
+    "project_id": "homebite-c8f7c",
+    "storage_bucket": "homebite-c8f7c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:305586759008:android:a8cbe52fb6bd5c494e2a05",
+        "android_client_info": {
+          "package_name": "com.example.home_bite"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAdWGpGkiIQ290iXS7vYif0TEl96TtMOI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
