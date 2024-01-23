@@ -4,8 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:home_bite/user_screens/dynamic_screen_functions.dart';
 import 'package:home_bite/user_screens/my_cart_screen.dart';
 
-
-
 class DynamicMenuPage extends StatefulWidget {
   const DynamicMenuPage(
       {required this.categoryName,
@@ -49,30 +47,31 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                         },
                       ),
                       SizedBox(
-                          child: ElevatedButton.icon(
-                        style: const ButtonStyle(
-                          shape: MaterialStatePropertyAll(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(15),
+                        child: ElevatedButton.icon(
+                          style: const ButtonStyle(
+                            shape: MaterialStatePropertyAll(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(15),
+                                ),
                               ),
                             ),
+                            shadowColor: MaterialStatePropertyAll(Colors.white),
                           ),
-                          shadowColor: MaterialStatePropertyAll(Colors.white),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MyCartPage(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.shopping_cart,
+                          ),
+                          label: const Text('Go to Cart'),
                         ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MyCartPage(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.shopping_cart,
-                        ),
-                        label: const Text('Go to Cart'),
-                      )),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 25),
@@ -144,20 +143,20 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                                     cookSnapshot.data?.data()
                                         as Map<String, dynamic>?;
 
-                                return EachItemListElement(
+                                return SellerEachItemListElement(
                                   cookName: cookData!["name"],
                                   image: userMap["image"],
-                                  location: userMap["Location"],
+                                  location: cookData["Location"],
                                   name: userMap["Name"],
                                   price: userMap["Price"],
                                   rating: userMap["Rating"],
                                   itemid: userMap["item-id"],
                                 );
                               } else {
-                                return EachItemListElement(
+                                return SellerEachItemListElement(
                                   cookName: "",
                                   image: userMap["image"],
-                                  location: userMap["Location"],
+                                  location: "",
                                   name: userMap["Name"],
                                   price: userMap["Price"],
                                   rating: userMap["Rating"],

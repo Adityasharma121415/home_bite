@@ -1,9 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:home_bite/seller_screens/seller_homepage.dart';
 import 'package:home_bite/user_screens/forgotpassword.dart';
 
 import 'package:home_bite/user_screens/homepage.dart';
@@ -64,20 +66,42 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = true;
       });
       try {
-        UserCredential userCredentials = await FirebaseAuth.instance
-            .signInWithEmailAndPassword(email: email, password: password);
-        log('Successfully Logged In');
-        if (userCredentials.user != null) {
+      UserCredential userCredentials = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      log('Successfully Logged In');
+      if (userCredentials.user != null) {
+        DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredentials.user!.uid)
+            .get();
+
+        if (userSnapshot.exists) {
+          Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+          String userRole = userData['role'];
+
           Navigator.popUntil(context, (route) => route.isFirst);
 
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const HomePage(),
-            ),
-          );
+          if (userRole == 'Cook') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SellerHomepage(),
+              ),
+            );
+          } else if(userRole == 'Customer') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePage(),
+              ),
+            );
+          }
+        } else {
+          // Handle case where user document does not exist
+          print('User document does not exist');
         }
-      } on FirebaseAuthException catch (ex) {
+      }
+    } on FirebaseAuthException catch (ex) {
         _showErrorDialog(ex.code.toString(), context);
         log(
           ex.code.toString(),
@@ -182,11 +206,10 @@ class _LoginPageState extends State<LoginPage> {
                       // const SizedBox(
                       //   height: 10,
                       // ),
-                      
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          
                           TextButton(
                             onPressed: () {
                               _showForgotPasswordSheet(context);

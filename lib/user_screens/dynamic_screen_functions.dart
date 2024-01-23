@@ -8,8 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 
 
-class EachItemListElement extends StatefulWidget {
-  const EachItemListElement({
+class SellerEachItemListElement extends StatefulWidget {
+  const SellerEachItemListElement({
     required this.name,
     required this.cookName,
     required this.location,
@@ -29,12 +29,12 @@ class EachItemListElement extends StatefulWidget {
   final String itemid;
 
   @override
-  State<EachItemListElement> createState() {
-    return _EachItemListElementState();
+  State<SellerEachItemListElement> createState() {
+    return _SellerEachItemListElementState();
   }
 }
 
-class _EachItemListElementState extends State<EachItemListElement> {
+class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
   int itemCount = 0;
 
   @override
@@ -166,22 +166,24 @@ class _EachItemListElementState extends State<EachItemListElement> {
                           color: Color.fromARGB(255, 0, 0, 0),
                           fontWeight: FontWeight.w700),
                     ),
-                    Row(
-                      children: [
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        const Icon(Icons.my_location_rounded,
-                            color: Color.fromARGB(255, 231, 4, 4), size: 21),
-                        Text(
-                          widget.location,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color.fromARGB(255, 0, 0, 0),
-                            fontWeight: FontWeight.w700,
+                    SizedBox(
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 20,
                           ),
-                        ),
-                      ],
+                          const Icon(Icons.my_location_rounded,
+                              color: Color.fromARGB(255, 231, 4, 4), size: 21),
+                          Text(
+                            widget.location,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color.fromARGB(255, 0, 0, 0),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -201,7 +203,7 @@ class _EachItemListElementState extends State<EachItemListElement> {
                       widget.image,
                       alignment: Alignment.topRight,
                       width: 100,
-                      height: 100,
+                      height: 100,fit: BoxFit.fill,
                     ),
                   ),
                 ),
