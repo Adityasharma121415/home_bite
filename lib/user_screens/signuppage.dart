@@ -197,8 +197,8 @@ class _SignUpPageState extends State<SignUpPage> {
                         },
                         child:  CircleAvatar(
                           radius: 60,
-                          backgroundImage: (profilepic!=null)?FileImage(profilepic!):null,
-                          backgroundColor: Colors.blueAccent,
+                          backgroundImage: (profilepic!=null)?FileImage(profilepic!):const AssetImage('assets/images/profileplaceholder.jpg') as ImageProvider<Object>,
+                          backgroundColor: const Color.fromARGB(255, 118, 122, 130),
                         ),
                       ),
                       const SizedBox(

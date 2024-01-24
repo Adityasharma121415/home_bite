@@ -49,8 +49,11 @@ void addNewItem(BuildContext context, String categoryId, String cookId) {
                 child: Column(
                   children: [
                     const SizedBox(
-                      height: 50,
+                      height: 60,
+
                     ),
+                    const Text('Select an image and fill all the details to add a new Item.',style: TextStyle(fontWeight: FontWeight.w500),textAlign: TextAlign.center),
+                    const SizedBox(height: 20,),
                     CupertinoButton(
                       onPressed: () async {
                         XFile? selectedFile = await ImagePicker()
@@ -69,7 +72,7 @@ void addNewItem(BuildContext context, String categoryId, String cookId) {
                           width: 140,
                           height: 140,
                           child: (newItemPic == null)
-                              ? null
+                              ? Image.asset('assets/images/imageplaceholder.png')
                               : Image.file(
                                   newItemPic!,
                                   fit: BoxFit.cover,

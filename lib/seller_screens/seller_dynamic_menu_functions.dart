@@ -276,7 +276,7 @@ void deleteDocumentWithConfirmation(
                     const SizedBox(
                       height: 50,
                     ),
-                    const Text('To edit the Item Name and Price, modify the data. \nTo change the Image, tap on the Image.',style: TextStyle(fontWeight: FontWeight.w500),textAlign: TextAlign.center),
+                    const Text('Tap on the image to change it and edit the fields as per requirement.',style: TextStyle(fontWeight: FontWeight.w500),textAlign: TextAlign.center),
                     const SizedBox(height: 10,),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
