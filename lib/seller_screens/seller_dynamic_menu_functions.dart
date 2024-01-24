@@ -3,7 +3,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
@@ -251,7 +250,7 @@ void deleteDocumentWithConfirmation(
         await documentReference.delete(); 
               
             },
-            child: Text('Delete',style: TextStyle(color: Colors.red),),
+            child: const Text('Delete',style: TextStyle(color: Colors.red),),
           ),
         ],
       );

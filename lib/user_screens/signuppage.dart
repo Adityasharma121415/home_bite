@@ -29,6 +29,7 @@ class _SignUpPageState extends State<SignUpPage> {
   File? profilepic;
 
   bool _isLoading = false;
+  bool _obscureText = true;
 
   User? currentUser = FirebaseAuth.instance.currentUser;
 
@@ -61,8 +62,13 @@ class _SignUpPageState extends State<SignUpPage> {
     String cpassword = cpasswordcontroller.text.trim();
     String phone = phoneController.text.trim();
 
-    if (name == "" || email == "" || password == "" || cpassword == ""|| profilepic==null) {
-      _showErrorDialog('Fill all the fields and select profile Picture', context);
+    if (name == "" ||
+        email == "" ||
+        password == "" ||
+        cpassword == "" ||
+        profilepic == null) {
+      _showErrorDialog(
+          'Fill all the fields and select profile Picture', context);
     } else if (password != cpassword) {
       _showErrorDialog('Passwords Mismatch!', context);
     } else if (_selectedProfile == 'Select Profile') {
@@ -77,10 +83,14 @@ class _SignUpPageState extends State<SignUpPage> {
 
         log('message');
         if (userCredentials.user != null) {
-          UploadTask uploadTask= FirebaseStorage.instance.ref().child('profilepictures').child(Uuid().v1()).putFile(profilepic!);
+          UploadTask uploadTask = FirebaseStorage.instance
+              .ref()
+              .child('profilepictures')
+              .child(Uuid().v1())
+              .putFile(profilepic!);
 
-          TaskSnapshot taskSnapshot=await uploadTask;
-          String downloadURL=await taskSnapshot.ref.getDownloadURL();
+          TaskSnapshot taskSnapshot = await uploadTask;
+          String downloadURL = await taskSnapshot.ref.getDownloadURL();
 
           await FirebaseFirestore.instance
               .collection('users')
@@ -92,39 +102,38 @@ class _SignUpPageState extends State<SignUpPage> {
             'user-id': userCredentials.user!.uid,
             'account-created-on': Timestamp.now(),
             'role': _selectedProfile,
-            'profile-pic':downloadURL,
+            'profile-pic': downloadURL,
 
             // Add other user details as needed
           });
 
           if (userCredentials.user != null) {
-        DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userCredentials.user!.uid)
-            .get();
+            DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+                .collection('users')
+                .doc(userCredentials.user!.uid)
+                .get();
 
-        if (userSnapshot.exists) {
-          Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
-          String userRole = userData['role'];
+            if (userSnapshot.exists) {
+              Map<String, dynamic> userData =
+                  userSnapshot.data() as Map<String, dynamic>;
+              String userRole = userData['role'];
 
-          if(userRole=='Cook'){
-            await FirebaseFirestore.instance
-              .collection('cooks')
-              .doc(userCredentials.user!.uid)
-              .set({
-            'name': name,
-            'displayimg':downloadURL,
-            'Location':"To be updated!",
-            'cook-id':userCredentials.user!.uid,
+              if (userRole == 'Cook') {
+                await FirebaseFirestore.instance
+                    .collection('cooks')
+                    .doc(userCredentials.user!.uid)
+                    .set({
+                  'name': name,
+                  'displayimg': downloadURL,
+                  'Location': "To be updated!",
+                  'cook-id': userCredentials.user!.uid,
 
-
-            // Add other user details as needed
-          });
-
+                  // Add other user details as needed
+                });
+              }
+            }
           }
-        }}
 
-          
           FirebaseAuth.instance.signOut();
           Navigator.pop(context);
         }
@@ -195,10 +204,15 @@ class _SignUpPageState extends State<SignUpPage> {
                             });
                           }
                         },
-                        child:  CircleAvatar(
+                        child: CircleAvatar(
                           radius: 60,
-                          backgroundImage: (profilepic!=null)?FileImage(profilepic!):const AssetImage('assets/images/profileplaceholder.jpg') as ImageProvider<Object>,
-                          backgroundColor: const Color.fromARGB(255, 118, 122, 130),
+                          backgroundImage: (profilepic != null)
+                              ? FileImage(profilepic!)
+                              : const AssetImage(
+                                      'assets/images/profileplaceholder.jpg')
+                                  as ImageProvider<Object>,
+                          backgroundColor:
+                              const Color.fromARGB(255, 118, 122, 130),
                         ),
                       ),
                       const SizedBox(
@@ -268,12 +282,21 @@ class _SignUpPageState extends State<SignUpPage> {
                         height: 10,
                       ),
                       TextField(
-                        obscureText: true,
+                        obscureText: _obscureText,
                         controller: passwordcontroller,
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.password),
+                        decoration: InputDecoration(
+                          icon: const Icon(Icons.password),
                           labelText: 'Password',
-                          suffixIcon: Icon(Icons.visibility),
+                          suffixIcon: IconButton(
+                            icon: Icon(_obscureText
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () {
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
+                            },
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -323,17 +346,19 @@ class _SignUpPageState extends State<SignUpPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text(
-                            'Existing user ?',
+                            'Existing user ? ',
                             style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w600),
+                                fontSize: 17, fontWeight: FontWeight.w600),
                           ),
-                          TextButton(
+                          TextButton(style: const ButtonStyle(
+                                padding:
+                                    MaterialStatePropertyAll(EdgeInsets.zero)),
                             onPressed: () {
                               Navigator.pop(context);
                             },
                             child: const Text(
-                              'LogIn here',
-                              style: TextStyle(fontSize: 16),
+                              'Login here',
+                              style: TextStyle(fontSize: 17),
                             ),
                           ),
                         ],

@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:home_bite/seller_screens/seller_homepage.dart';
-import 'package:home_bite/seller_screens/testsellerpage.dart';
 import 'package:home_bite/user_screens/homepage.dart';
 import 'package:home_bite/user_screens/loginpage.dart';
 import 'firebase_options.dart';

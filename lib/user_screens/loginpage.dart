@@ -24,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController emailcontrol = TextEditingController();
   TextEditingController passwordcontrol = TextEditingController();
   bool _isLoading = false;
+  bool _obscureText = true;
 
   void _showForgotPasswordSheet(BuildContext context) {
     showModalBottomSheet(
@@ -66,42 +67,43 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = true;
       });
       try {
-      UserCredential userCredentials = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
-      log('Successfully Logged In');
-      if (userCredentials.user != null) {
-        DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userCredentials.user!.uid)
-            .get();
+        UserCredential userCredentials = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(email: email, password: password);
+        log('Successfully Logged In');
+        if (userCredentials.user != null) {
+          DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredentials.user!.uid)
+              .get();
 
-        if (userSnapshot.exists) {
-          Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
-          String userRole = userData['role'];
+          if (userSnapshot.exists) {
+            Map<String, dynamic> userData =
+                userSnapshot.data() as Map<String, dynamic>;
+            String userRole = userData['role'];
 
-          Navigator.popUntil(context, (route) => route.isFirst);
+            Navigator.popUntil(context, (route) => route.isFirst);
 
-          if (userRole == 'Cook') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SellerHomepage(),
-              ),
-            );
-          } else if(userRole == 'Customer') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomePage(),
-              ),
-            );
+            if (userRole == 'Cook') {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SellerHomepage(),
+                ),
+              );
+            } else if (userRole == 'Customer') {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),
+                ),
+              );
+            }
+          } else {
+            // Handle case where user document does not exist
+            print('User document does not exist');
           }
-        } else {
-          // Handle case where user document does not exist
-          print('User document does not exist');
         }
-      }
-    } on FirebaseAuthException catch (ex) {
+      } on FirebaseAuthException catch (ex) {
         _showErrorDialog(ex.code.toString(), context);
         log(
           ex.code.toString(),
@@ -122,20 +124,16 @@ class _LoginPageState extends State<LoginPage> {
         child: Center(
           child: Column(
             children: [
-              const SizedBox(
-                height: 50,
-              ),
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   color: const Color.fromARGB(255, 245, 245, 245),
                 ),
-                height: 200,
+                height: 250,
                 width: double.infinity,
                 child: Center(
                   child: SizedBox(
-                    width: 300,
-                    height: 200,
+                    height: 300,
                     child: Image.asset(
                       'assets/images/finalapplogo.png',
                     ),
@@ -149,9 +147,6 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(
-                        height: 10,
-                      ),
                       Text(
                         'LogIn',
                         style: GoogleFonts.salsa(
@@ -169,10 +164,22 @@ class _LoginPageState extends State<LoginPage> {
                         height: 10,
                       ),
                       TextField(
-                        obscureText: true,
+                        obscureText: _obscureText,
                         controller: passwordcontrol,
-                        decoration: const InputDecoration(
-                            labelText: 'Password', icon: Icon(Icons.password)),
+                        decoration: InputDecoration(
+                          icon: const Icon(Icons.password),
+                          labelText: 'Password',
+                          suffixIcon: IconButton(
+                            icon: Icon(_obscureText
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () {
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
+                            },
+                          ),
+                        ),
                       ),
                       const SizedBox(
                         height: 40,
@@ -214,23 +221,27 @@ class _LoginPageState extends State<LoginPage> {
                             onPressed: () {
                               _showForgotPasswordSheet(context);
                             },
-                            child: const Text('Forgot Password?'),
+                            child: const Text(
+                              'Forgot Password?',
+                              style: TextStyle(
+                                  color: Color.fromARGB(255, 146, 32, 24)),
+                            ),
                           ),
                         ],
-                      ),
-                      const SizedBox(
-                        height: 10,
                       ),
 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text(
-                            'New User?',
+                            'New user ? ',
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w600),
+                                fontSize: 17, fontWeight: FontWeight.w600),
                           ),
                           TextButton(
+                            style: const ButtonStyle(
+                                padding:
+                                    MaterialStatePropertyAll(EdgeInsets.zero)),
                             onPressed: () {
                               Navigator.push(
                                   context,
@@ -240,7 +251,9 @@ class _LoginPageState extends State<LoginPage> {
                             },
                             child: const Text(
                               'Create Account',
-                              style: TextStyle(fontSize: 18),
+                              style: TextStyle(
+                                  fontSize: 17,
+                                  color: Color.fromARGB(255, 4, 56, 244)),
                             ),
                           ),
                         ],
