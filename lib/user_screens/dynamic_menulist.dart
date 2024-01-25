@@ -24,6 +24,14 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
   @override
   Widget build(context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(onPressed: (){
+        setState(() {
+        });
+      },child: Icon(Icons.refresh),
+      shape: CircleBorder(eccentricity: 1),
+      backgroundColor: Color.fromARGB(255, 255, 255, 255),
+      foregroundColor: Color.fromARGB(255, 196, 16, 31),
+      ),
       body: Center(
         child: Column(
           children: [

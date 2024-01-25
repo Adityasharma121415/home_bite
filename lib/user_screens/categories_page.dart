@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:home_bite/user_screens/dynamic_menulist.dart';
+import 'package:home_bite/user_screens/my_cart_screen.dart';
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({required this.categorytype, super.key});
@@ -39,15 +40,30 @@ class _CategoryPageState extends State<CategoryPage> {
                         icon: const Icon(Icons.arrow_back),
                         color: const Color.fromARGB(255, 214, 0, 0),
                       ),
-                      const SizedBox(
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.shopping_cart,
-                              size: 24,
+                      SizedBox(
+                        child: ElevatedButton.icon(
+                          style: const ButtonStyle(
+                            shape: MaterialStatePropertyAll(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(15),
+                                ),
+                              ),
                             ),
-                            SizedBox(width: 15),
-                          ],
+                            shadowColor: MaterialStatePropertyAll(Colors.white),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MyCartPage(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.shopping_cart,
+                          ),
+                          label: const Text('Go to Cart'),
                         ),
                       ),
                     ],
