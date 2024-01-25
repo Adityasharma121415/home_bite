@@ -104,78 +104,80 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                 ],
               ),
             ),
-            SizedBox(
-              width: double.infinity,
-              height: 620,
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection("menu")
-                    .where(widget.type, isEqualTo: widget.categoryid)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.active) {
-                    if (snapshot.hasData && snapshot.data != null) {
-                      if (snapshot.data!.docs.isEmpty) {
-                        // Display a message or widget when no items are found
-                        return const Center(
-                          child: Text("No items found in this category."),
-                        );
-                      }
-
-                      return ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: snapshot.data!.docs.length,
-                        itemBuilder: (context, index) {
-                          Map<String, dynamic> userMap =
-                              snapshot.data!.docs[index].data()
-                                  as Map<String, dynamic>;
-
-                          return FutureBuilder<DocumentSnapshot>(
-                            future: FirebaseFirestore.instance
-                                .collection('cooks')
-                                .doc(userMap['cook-id'])
-                                .get(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<DocumentSnapshot> cookSnapshot) {
-                              if (cookSnapshot.connectionState ==
-                                  ConnectionState.done) {
-                                Map<String, dynamic>? cookData =
-                                    cookSnapshot.data?.data()
-                                        as Map<String, dynamic>?;
-
-                                return SellerEachItemListElement(
-                                  cookName: cookData!["name"],
-                                  image: userMap["image"],
-                                  location: cookData["Location"],
-                                  name: userMap["Name"],
-                                  price: userMap["Price"],
-                                  rating: userMap["Rating"],
-                                  itemid: userMap["item-id"],
-                                );
-                              } else {
-                                return SellerEachItemListElement(
-                                  cookName: "",
-                                  image: userMap["image"],
-                                  location: "",
-                                  name: userMap["Name"],
-                                  price: userMap["Price"],
-                                  rating: userMap["Rating"],
-                                  itemid: userMap["item-id"],
-                                );
-                              }
-                            },
+            Expanded(
+              child: SizedBox(
+                width: double.infinity,
+                
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("menu")
+                      .where(widget.type, isEqualTo: widget.categoryid)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.active) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        if (snapshot.data!.docs.isEmpty) {
+                          // Display a message or widget when no items are found
+                          return const Center(
+                            child: Text("No items found in this category."),
                           );
-                        },
-                      );
+                        }
+              
+                        return ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: snapshot.data!.docs.length,
+                          itemBuilder: (context, index) {
+                            Map<String, dynamic> userMap =
+                                snapshot.data!.docs[index].data()
+                                    as Map<String, dynamic>;
+              
+                            return FutureBuilder<DocumentSnapshot>(
+                              future: FirebaseFirestore.instance
+                                  .collection('cooks')
+                                  .doc(userMap['cook-id'])
+                                  .get(),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<DocumentSnapshot> cookSnapshot) {
+                                if (cookSnapshot.connectionState ==
+                                    ConnectionState.done) {
+                                  Map<String, dynamic>? cookData =
+                                      cookSnapshot.data?.data()
+                                          as Map<String, dynamic>?;
+              
+                                  return SellerEachItemListElement(
+                                    cookName: cookData!["name"],
+                                    image: userMap["image"],
+                                    location: cookData["Location"],
+                                    name: userMap["Name"],
+                                    price: userMap["Price"],
+                                    rating: userMap["Rating"],
+                                    itemid: userMap["item-id"],
+                                  );
+                                } else {
+                                  return SellerEachItemListElement(
+                                    cookName: "",
+                                    image: userMap["image"],
+                                    location: "",
+                                    name: userMap["Name"],
+                                    price: userMap["Price"],
+                                    rating: userMap["Rating"],
+                                    itemid: userMap["item-id"],
+                                  );
+                                }
+                              },
+                            );
+                          },
+                        );
+                      } else {
+                        return const Text('No Data found');
+                      }
                     } else {
-                      return const Text('No Data found');
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
                     }
-                  } else {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                },
+                  },
+                ),
               ),
             ),
           ],

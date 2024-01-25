@@ -21,118 +21,112 @@ class _CategoryPageState extends State<CategoryPage> {
     }
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          color: const Color.fromARGB(255, 255, 255, 255),
-          child: Center(
-            child: Column(
-              children: [
-                const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  height: 205,
-                  child: Column(
+      body: Center(
+        child: Column(
+          children: [
+            const SizedBox(height: 40),
+            SizedBox(
+              width: double.infinity,
+              height: 205,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            onPressed: changethePage,
-                            icon: const Icon(Icons.arrow_back),
-                            color: const Color.fromARGB(255, 214, 0, 0),
-                          ),
-                          const SizedBox(
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.shopping_cart,
-                                  size: 24,
-                                ),
-                                SizedBox(width: 15),
-                              ],
-                            ),
-                          ),
-                        ],
+                      IconButton(
+                        onPressed: changethePage,
+                        icon: const Icon(Icons.arrow_back),
+                        color: const Color.fromARGB(255, 214, 0, 0),
                       ),
-                      const SizedBox(height: 25),
-                      Text(
-                        widget.categorytype,
-                        style: GoogleFonts.salsa(
-                            textStyle: const TextStyle(fontSize: 38)),
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        height: 68,
-                        width: 400,
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: TextField(
-                            textAlignVertical: TextAlignVertical.bottom,
-                            controller: SearchController(),
-                            decoration: const InputDecoration(
-                              labelText: 'Search',
-                              hintText: 'Enter your search term',
-                              prefixIcon: Icon(Icons.search),
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                              ),
+                      const SizedBox(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.shopping_cart,
+                              size: 24,
                             ),
-                          ),
+                            SizedBox(width: 15),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  height: 620,
-                  child: Padding(
-                    padding: const EdgeInsets.all(9.0),
-                    child: StreamBuilder(
-                      stream: FirebaseFirestore.instance
-                          .collection(widget.categorytype.toLowerCase())
-                          .snapshots(),
-                      builder:
-                          (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-
-                          // Loading indicator while fetching data
-                        }
-
-                        if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        }
-
-                        final categories = snapshot.data!.docs;
-
-                        return GridView.builder(
-                          padding: EdgeInsets.zero,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 10.0,
-                            mainAxisSpacing: 10.0,
-                            childAspectRatio: 0.9,
+                  const SizedBox(height: 25),
+                  Text(
+                    widget.categorytype,
+                    style: GoogleFonts.salsa(
+                        textStyle: const TextStyle(fontSize: 38)),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 68,
+                    width: 400,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: TextField(
+                        textAlignVertical: TextAlignVertical.bottom,
+                        controller: SearchController(),
+                        decoration: const InputDecoration(
+                          labelText: 'Search',
+                          hintText: 'Enter your search term',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0)),
                           ),
-                          itemCount: categories.length,
-                          itemBuilder: (BuildContext context, index) {
-                            return GridItem(
-                                categories[index], widget.categorytype);
-                          },
-                        );
-                      },
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            Expanded(
+              child: SizedBox(
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.all(9.0),
+                  child: StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection(widget.categorytype.toLowerCase())
+                        .snapshots(),
+                    builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+
+                        // Loading indicator while fetching data
+                      }
+
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+
+                      final categories = snapshot.data!.docs;
+
+                      return GridView.builder(
+                        padding: EdgeInsets.zero,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10.0,
+                          mainAxisSpacing: 10.0,
+                          childAspectRatio: 0.9,
+                        ),
+                        itemCount: categories.length,
+                        itemBuilder: (BuildContext context, index) {
+                          return GridItem(
+                              categories[index], widget.categorytype);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -147,8 +141,6 @@ class GridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-
     return ClipRRect(
       borderRadius: BorderRadius.circular(9.0),
       child: GestureDetector(
@@ -157,7 +149,10 @@ class GridItem extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => DynamicMenuPage(type: (type.toLowerCase() == 'categories')?'category-id':'cook-id',
+              builder: (context) => DynamicMenuPage(
+                type: (type.toLowerCase() == 'categories')
+                    ? 'category-id'
+                    : 'cook-id',
                 categoryid: (type.toLowerCase() == 'categories')
                     ? category['category-id']
                     : category['cook-id'],
@@ -173,8 +168,8 @@ class GridItem extends StatelessWidget {
           child: Center(
             child: Column(
               children: [
-                const SizedBox(
-                  height: 12,
+                const Expanded(
+                  child: SizedBox(),
                 ),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(9),
@@ -187,14 +182,17 @@ class GridItem extends StatelessWidget {
                 const SizedBox(
                   height: 8,
                 ),
-                Text(
-                  (type.toLowerCase() == 'categories')
-                      ? category['category'].toString().toUpperCase()
-                      : category['name'].toString().toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: Text(
+                    (type.toLowerCase() == 'categories')
+                        ? category['category'].toString().toUpperCase()
+                        : category['name'].toString().toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],

@@ -211,10 +211,11 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
               const SizedBox(
                 width: 40,
               ),
-              TextButton.icon(onPressed:(){
-                deleteDocumentWithConfirmation(context,'menu',widget.itemid);
-              },
-                
+              TextButton.icon(
+                onPressed: () {
+                  deleteDocumentWithConfirmation(
+                      context, 'menu', widget.itemid);
+                },
                 icon: const Icon(Icons.delete, color: Colors.red),
                 label: const Text('Delete'),
               ),
@@ -225,39 +226,40 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
     );
   }
 
+  void deleteDocumentWithConfirmation(
+      BuildContext context, String collectionName, String documentId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Delete'),
+          content: Text('Are you sure you want to delete this Item?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Cancel', style: TextStyle(color: Colors.green)),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close the dialog
+                DocumentReference documentReference = FirebaseFirestore.instance
+                    .collection(collectionName)
+                    .doc(documentId);
 
-void deleteDocumentWithConfirmation(
-    BuildContext context, String collectionName, String documentId) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Confirm Delete'),
-        content: Text('Are you sure you want to delete this Item?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: Text('Cancel',style: TextStyle(color: Colors.green)),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop(); // Close the dialog
-              DocumentReference documentReference =
-        FirebaseFirestore.instance.collection(collectionName).doc(documentId);
-
-        await documentReference.delete(); 
-              
-            },
-            child: const Text('Delete',style: TextStyle(color: Colors.red),),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+                await documentReference.delete();
+              },
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _showEditModal(BuildContext context) {
     showModalBottomSheet(
@@ -275,8 +277,13 @@ void deleteDocumentWithConfirmation(
                     const SizedBox(
                       height: 50,
                     ),
-                    const Text('Tap on the image to change it and edit the fields as per requirement.',style: TextStyle(fontWeight: FontWeight.w500),textAlign: TextAlign.center),
-                    const SizedBox(height: 10,),
+                    const Text(
+                        'Tap on the image to change it and edit the fields as per requirement.',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                        textAlign: TextAlign.center),
+                    const SizedBox(
+                      height: 10,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

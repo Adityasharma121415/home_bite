@@ -83,7 +83,7 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
         color: const Color.fromARGB(255, 255, 255, 255),
         borderRadius: BorderRadius.circular(0.0),
       ),
-      height: 180,
+      height:MediaQuery.of(context).size.width*0.44,
       margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

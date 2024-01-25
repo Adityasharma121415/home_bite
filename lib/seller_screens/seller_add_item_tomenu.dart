@@ -42,7 +42,7 @@ void addNewItem(BuildContext context, String categoryId, String cookId) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             child: Container(
               child: Form(
                 key: _formKey,
