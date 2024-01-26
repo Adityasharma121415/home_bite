@@ -205,7 +205,7 @@ class _CartItemDesignState extends State<CartItemDesign> {
                                 setState(() {
                                   itemCount--;
                                 });
-                                addToCart(widget.itemId, itemCount);
+                                addToCart(widget.itemId, itemCount,context);
                               },
                               icon: const Icon(size: 20,
                                 Icons.remove_circle,
@@ -222,7 +222,7 @@ class _CartItemDesignState extends State<CartItemDesign> {
                                 setState(() {
                                   itemCount++;
                                 });
-                                addToCart(widget.itemId, itemCount);
+                                addToCart(widget.itemId, itemCount,context);
                               },
                               icon: const Icon(size: 20,
                                 Icons.add_circle,

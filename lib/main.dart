@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:home_bite/user_screens/homepage.dart';
 import 'package:home_bite/user_screens/loginpage.dart';
+import 'package:home_bite/user_screens/my_orders_page.dart';
 import 'firebase_options.dart';
 import 'package:flutter/services.dart';
 
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget{
     ]);
 
     return MaterialApp(
-       home:   (FirebaseAuth.instance.currentUser!=null)? const HomePage():const LoginPage(),  //MyCartPage(),// SellerHomepage()
+       home:  MyOrdersPage()//(FirebaseAuth.instance.currentUser!=null)? const HomePage():const LoginPage(),  //MyCartPage(),// SellerHomepage() MyOrdersPage()
     );
   }
 }

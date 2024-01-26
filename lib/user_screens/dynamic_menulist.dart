@@ -25,9 +25,8 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
   Widget build(context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: (){
-        setState(() {
-        });
-      },child: Icon(Icons.refresh),
+        
+      },child: Icon(Icons.filter_alt),
       shape: CircleBorder(eccentricity: 1),
       backgroundColor: Color.fromARGB(255, 255, 255, 255),
       foregroundColor: Color.fromARGB(255, 196, 16, 31),
@@ -66,13 +65,16 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                             ),
                             shadowColor: MaterialStatePropertyAll(Colors.white),
                           ),
-                          onPressed: () {
-                            Navigator.push(
+                          onPressed: () async {
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const MyCartPage(),
                               ),
                             );
+                            setState(() {
+                              
+                            });
                           },
                           icon: const Icon(
                             Icons.shopping_cart,
@@ -194,3 +196,8 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
     );
   }
 }
+
+
+
+
+

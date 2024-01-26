@@ -119,6 +119,9 @@ class _CategoryPageState extends State<CategoryPage> {
                       if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       }
+                      if(!snapshot.hasData){
+                        return const Center(child: Text('No Cook available'),);
+                      }
 
                       final categories = snapshot.data!.docs;
 

@@ -9,12 +9,16 @@ class MyCartPage extends StatefulWidget {
   const MyCartPage({super.key});
 
   @override
-  _MyCartPageState createState() => _MyCartPageState();
+  State<MyCartPage> createState(){
+    return _MyCartPageState();
+  }
 }
 
 class _MyCartPageState extends State<MyCartPage> {
   User? user = FirebaseAuth.instance.currentUser;
-  num totalamt = 0;
+  // num totalamt = 0;
+  List<dynamic>? cartToOrder;
+  num? checkoutamount;
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +84,8 @@ class _MyCartPageState extends State<MyCartPage> {
                         !snapshot.data!.exists ||
                         snapshot.data!.data() == null) {
                       log('position3');
-                      return const Center(
-                        child: Text('Cart is empty.'),
+                      return  Center(
+                        child: SizedBox(width: 150,height: 150,child: Image.asset('assets/images/emptycart.webp',),),
                       );
                     }
 
@@ -90,7 +94,8 @@ class _MyCartPageState extends State<MyCartPage> {
                         snapshot.data!.data() as Map<String, dynamic>;
 
                     List<dynamic> cartItems = cartData['cart-items'];
-                    totalamt = 0;
+                    cartToOrder=cartItems;
+                    // totalamt = 0;
 
                     return ListView.builder(
                       padding: EdgeInsets.zero,
@@ -146,8 +151,8 @@ class _MyCartPageState extends State<MyCartPage> {
                                       return const SizedBox.shrink();
                                     }
                                     log('positionfinal');
-                                    totalamt += itemData['Price'] *
-                                        cartItemMap['quantity'];
+                                    // totalamt += itemData['Price'] *
+                                    //     cartItemMap['quantity'];
                                     return CartItemDesign(
                                       cookName:
                                           cookData['name'] ?? 'Unknown Cook',
@@ -195,6 +200,7 @@ class _MyCartPageState extends State<MyCartPage> {
                               return Text('Error: ${snapshot.error}');
                             }
                             final totalAmount = snapshot.data ?? 0;
+                            checkoutamount=totalAmount;
                             return Row(
                               children: [
                                 const Text(
@@ -207,7 +213,7 @@ class _MyCartPageState extends State<MyCartPage> {
                                   width: 20,
                                 ),
                                 Text(
-                                  totalAmount.toString(),
+                                  'Rs $totalAmount',
                                   style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 22),
@@ -221,7 +227,9 @@ class _MyCartPageState extends State<MyCartPage> {
                   ),
                   GestureDetector(
                     onTap: () async {
-                      await handleCheckout();
+                      if(cartToOrder!=null && checkoutamount!=null){
+                        await handleCheckout(cartToOrder,checkoutamount,user!.uid);
+                      }
                     },
                     child: Container(
                       margin: const EdgeInsets.symmetric(
@@ -251,14 +259,57 @@ class _MyCartPageState extends State<MyCartPage> {
     );
   }
 
-  Future<void> handleCheckout() async {
-    // Your checkout logic goes here
 
+  
+  Future<void> handleCheckout(List<dynamic>? cartToOrder,num? checkoutamount,String userId) async {
+
+    List<Map<String,dynamic>> extractedElements=[];
+    String cookId="";
+
+    if(cartToOrder!=null){
+      for(Map<String,dynamic> elements in cartToOrder){
+         DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('menu').doc(elements['item-id']).get();
+
+         Map<String ,dynamic> menuData=snapshot.data() as Map<String,dynamic>;
+         cookId=menuData['cook-id'];
+
+         Map<String,dynamic> menuDataOrdered={
+          'itemName':menuData['Name'],
+          'itemPrice':menuData['Price'],
+          
+          'image':menuData['image'],
+          'item-id':menuData['item-id'],
+          
+          'quantity':elements['quantity'],
+
+         };
+         extractedElements.add(menuDataOrdered);
+
+      }
+      Map<String,dynamic> dataToBeUploaded={
+      'items':extractedElements,
+      'status':'pending',
+      'timestamp':DateTime.now(),
+      'total-price':checkoutamount,
+      'cook-id':cookId,
+      'user-id':userId,
+      'userLocation':'TobeUpdated',
+    };
+    // Your checkout logic goes here
+    DocumentReference docRef= await FirebaseFirestore.instance.collection('orders').add(dataToBeUploaded);
+    String orderId=docRef.id;
+    await docRef.update({'order-id':orderId});
     // Delete the cart document
     await FirebaseFirestore.instance
         .collection('carts')
         .doc(user?.uid)
         .delete();
+
+
+    }
+
+
+    
   }
 
   Stream<num> calculateTotalAmountStream(String userId) {
@@ -315,4 +366,4 @@ class _MyCartPageState extends State<MyCartPage> {
   }
 }
 
-//DESIGN OF THE CARD THAT WILL TAKE THE INPUT NAME,COOKNAME,QUANTITY,PRICE,IMAGEURL AND DISPLAY IT BASED ON THE NUMBER OF ELEMENTS IN THE ARRAY OF CART-ITEMS
+

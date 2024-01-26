@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, use_build_context_synchronously
 
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -227,7 +227,7 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                                 setState(() {
                                   itemCount++;
                                 });
-                                addToCart(widget.itemid, itemCount);
+                                addToCart(widget.itemid, itemCount,context);
                               },
                               child: const Text(
                                 'Add to Cart',
@@ -245,7 +245,7 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                                 setState(() {
                                   itemCount--;
                                 });
-                                addToCart(widget.itemid, itemCount);
+                                addToCart(widget.itemid, itemCount,context);
                               },
                               icon: const Icon(
                                 Icons.remove_circle,
@@ -262,7 +262,7 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                                 setState(() {
                                   itemCount++;
                                 });
-                                addToCart(widget.itemid, itemCount);
+                                addToCart(widget.itemid, itemCount,context);
                               },
                               icon: const Icon(
                                 Icons.add_circle,
@@ -287,9 +287,14 @@ String getCurrentUserId() {
   return user?.uid ?? '';
 }
 
-Future<void> addToCart(String itemId, int quantity) async {
+Future<void> addToCart(String itemId, int quantity, BuildContext context) async {
   try {
     String userId = getCurrentUserId();
+
+    DocumentSnapshot cookSnapshot =
+        await FirebaseFirestore.instance.collection('menu').doc(itemId).get();
+    Map<String, dynamic> cookData = cookSnapshot.data() as Map<String, dynamic>;
+    String cookId = cookData['cook-id'] ?? '';
 
     DocumentSnapshot cartSnapshot =
         await FirebaseFirestore.instance.collection('carts').doc(userId).get();
@@ -301,24 +306,64 @@ Future<void> addToCart(String itemId, int quantity) async {
     // If cartData is null, initialize it as an empty map
     cartData ??= {'user-id': userId, 'cart-items': []};
 
-    // Check if the item with itemId already exists in the cart
-    bool itemExists = false;
-    for (Map<String, dynamic> item in cartData['cart-items'] ?? []) {
-      if (item['item-id'] == itemId) {
-        if (quantity > 0) {
-          item['quantity'] = quantity;
-        } else {
-          // If quantity is 0, remove the item from the array
-          cartData['cart-items']?.remove(item);
-        }
-        itemExists = true;
-        break;
-      }
-    }
+    // Check if the cart already contains items
+    if (cartData['cart-items']!.isNotEmpty) {
+      // Check if the cook-id of the new item matches the cook-id of existing items
+      String existingCookId = cartData['cart-items'][0]['cook-id'];
+      if (existingCookId != cookId) {
+        // Show a warning dialog before replacing the existing items
+        bool replaceItems = await showDialog(
+          context: context,
+          builder: (BuildContext context)  {
+            return AlertDialog(
+              title: Text('Replace Items?'),
+              content: Text('Adding this item will replace the existing items in your cart. Do you want to proceed?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () async{
+                    Navigator.of(context).pop(true); // User chooses to replace items
+                  },
+                  child: Text('Yes'),
+                ),
+                TextButton(
+                  onPressed: ()async{
+                    Navigator.of(context).pop(false); // User cancels replacing items
+                  },
+                  child: Text('No'),
+                ),
+              ],
+            );
+          },
+        );
 
-    // If the item doesn't exist and quantity is greater than 0, add a new item to the cart
-    if (!itemExists && quantity > 0) {
-      cartData['cart-items']?.add({'item-id': itemId, 'quantity': quantity});
+        // If user chooses to replace items, replace them with the new item
+        if (replaceItems) {
+          cartData['cart-items'] = [{'item-id': itemId, 'quantity': quantity, 'cook-id': cookId}];
+        }
+      } else {
+        // Check if the item with itemId already exists in the cart
+        bool itemExists = false;
+        for (Map<String, dynamic> item in cartData['cart-items'] ?? []) {
+          if (item['item-id'] == itemId) {
+            if (quantity > 0) {
+              item['quantity'] = quantity;
+            } else {
+              // If quantity is 0, remove the item from the array
+              cartData['cart-items']?.remove(item);
+            }
+            itemExists = true;
+            break;
+          }
+        }
+
+        // If the item doesn't exist and quantity is greater than 0, add a new item to the cart
+        if (!itemExists && quantity > 0) {
+          cartData['cart-items']?.add({'item-id': itemId, 'quantity': quantity, 'cook-id': cookId});
+        }
+      }
+    } else {
+      // If the cart is empty, add the new item directly
+      cartData['cart-items']?.add({'item-id': itemId, 'quantity': quantity, 'cook-id': cookId});
     }
 
     // If the cart array is empty, delete the entire document
@@ -326,12 +371,12 @@ Future<void> addToCart(String itemId, int quantity) async {
       await FirebaseFirestore.instance.collection('carts').doc(userId).delete();
     } else {
       // Save updated cart data back to Firestore
-      await FirebaseFirestore.instance
-          .collection('carts')
-          .doc(userId)
-          .set(cartData);
+      await FirebaseFirestore.instance.collection('carts').doc(userId).set(cartData);
     }
   } catch (e) {
     log('Error adding item to cart: $e');
   }
 }
+
+
+//needs to modify the code such that it gets rebuilt when pressed No.
