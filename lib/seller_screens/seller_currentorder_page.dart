@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class CurrentOrders extends StatefulWidget {
   const CurrentOrders({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Current Orders'),
+        title: const Text('Current Orders'),
       ),
       body: Center(
         child: Column(
@@ -27,7 +28,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
                 future: fetchOrders(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
+                    return const Center(
                       child: CircularProgressIndicator(),
                     );
                   }
@@ -41,7 +42,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
                   final orders = snapshot.data?.docs;
 
                   if (orders == null || orders.isEmpty) {
-                    return Center(
+                    return const Center(
                       child: Text('No orders found.'),
                     );
                   }
@@ -60,17 +61,42 @@ class _CurrentOrdersState extends State<CurrentOrders> {
                       // Check if cook-id matches the current user's id and status is pending
                       if (orderData['cook-id'] == user?.uid &&
                           orderData['status'] == 'pending') {
-                        return OrderItemDesign(
-                          orderId: orderData['order-id'] ?? '',
-                          status: orderData['status'] ?? '',
-                          timestamp: orderData['timestamp'] ??
-                              Timestamp.fromDate(DateTime.now()),
-                          totalPrice:
-                              (orderData['total-price'] ?? 0).toDouble(),
-                          items: orderData['items'] ?? [],
-                          markAsCompleted: () {
-                            // Mark order as completed function
-                            markOrderAsCompleted(orderData['order-id']);
+                        return FutureBuilder<DocumentSnapshot>(
+                          future: FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(orderData['user-id'])
+                              .get(),
+                          builder: (context,
+                              AsyncSnapshot<DocumentSnapshot> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return SizedBox(); // Show nothing while waiting
+                            }
+
+                            if (snapshot.hasError || !snapshot.hasData) {
+                              // Handle error or data not available
+                              return Container();
+                            }
+
+                            Map<String, dynamic>? userData =
+                                snapshot.data!.data() as Map<String, dynamic>?;
+
+                            return OrderItemDesign(
+                              orderId: orderData['order-id'] ?? '',
+                              status: orderData['status'] ?? '',
+                              timestamp: orderData['timestamp'] ??
+                                  Timestamp.fromDate(DateTime.now()),
+                              totalPrice:
+                                  (orderData['total-price'] ?? 0).toDouble(),
+                              items: orderData['items'] ?? [],
+                              location: orderData['userLocation'],
+                              name: userData!['name'],
+                              mobileNo: userData['mobileNo'],
+                              markAsCompleted: () {
+                                // Mark order as completed function
+                                markOrderAsCompleted(orderData['order-id']);
+                              },
+                            );
                           },
                         );
                       } else {
@@ -130,6 +156,9 @@ class OrderItemDesign extends StatelessWidget {
     required this.totalPrice,
     required this.items,
     required this.markAsCompleted,
+    required this.name,
+    required this.location,
+    required this.mobileNo,
   }) : super(key: key);
 
   final String orderId;
@@ -138,6 +167,9 @@ class OrderItemDesign extends StatelessWidget {
   final double totalPrice;
   final List<dynamic> items;
   final VoidCallback markAsCompleted;
+  final String name;
+  final String location;
+  final String mobileNo;
 
   @override
   Widget build(BuildContext context) {
@@ -156,9 +188,9 @@ class OrderItemDesign extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 'Order ID: $orderId',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
-                  color: const Color.fromARGB(255, 0, 0, 0),
+                  color: Color.fromARGB(255, 0, 0, 0),
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -175,11 +207,20 @@ class OrderItemDesign extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  Spacer(),
-                  TextButton.icon(
+                  const Spacer(),
+                  ElevatedButton.icon(
+                    style: const ButtonStyle(
+                        backgroundColor: MaterialStatePropertyAll(
+                            Color.fromARGB(255, 212, 98, 90))),
                     onPressed: markAsCompleted,
-                    icon: Icon(Icons.download_done,size: 20,color: Colors.red,),
-                    label: Text('Prepared ?',style: TextStyle(color: Colors.red)),
+                    icon: const Icon(
+                      Icons.download_done,
+                      size: 18,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                    ),
+                    label: const Text('Prepared ?',
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 255, 255, 255))),
                   ),
                 ],
               ),
@@ -187,7 +228,7 @@ class OrderItemDesign extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                'Date: ${timestamp.toDate().toString()}',
+                DateFormat.yMd().add_jm().format(timestamp.toDate()),
                 style: const TextStyle(
                   fontSize: 14,
                   color: Color.fromARGB(255, 0, 0, 0),
@@ -195,13 +236,52 @@ class OrderItemDesign extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            Container(decoration: BoxDecoration(color: const Color.fromARGB(255, 225, 218, 218,),borderRadius: BorderRadius.circular(10)),
+              child: Column(mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Text(
+                      '  Customer Name: $name',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Text(
+                      'Mobile No: $mobileNo',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Text(
+                      'Address: $location',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
               child: Text(
                 'Items:',
                 style: TextStyle(
                   fontSize: 16,
-                  color: const Color.fromARGB(255, 0, 0, 0),
+                  color: Color.fromARGB(255, 0, 0, 0),
                   fontWeight: FontWeight.w600,
                 ),
               ),

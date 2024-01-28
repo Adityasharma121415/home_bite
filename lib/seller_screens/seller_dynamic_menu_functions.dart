@@ -205,7 +205,7 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                   // Show the bottom modal sheet on "Edit" button press
                   _showEditModal(context);
                 },
-                icon: const Icon(Icons.edit, color: Colors.green),
+                icon: const Icon(Icons.edit_note_rounded, color: Color.fromARGB(255, 57, 165, 61),size: 24,),
                 label: const Text('Edit'),
               ),
               const SizedBox(
@@ -216,7 +216,7 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                   deleteDocumentWithConfirmation(
                       context, 'menu', widget.itemid);
                 },
-                icon: const Icon(Icons.delete, color: Colors.red),
+                icon: const Icon(Icons.delete_rounded, color: Color.fromARGB(255, 201, 68, 59),size:22),
                 label: const Text('Delete'),
               ),
             ],
@@ -232,7 +232,8 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Delete'),
+          title: Text('Confirm Delete',),
+          titleTextStyle: TextStyle(fontSize: 20,color:Colors.black),
           content: Text('Are you sure you want to delete this Item?'),
           actions: [
             TextButton(
@@ -352,6 +353,25 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               if (menupic != null) {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return const Dialog(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(20.0),
+                                        child: Row(crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            CircularProgressIndicator(),
+                                            SizedBox(width: 20),
+                                            Text("Updating..."),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
                                 UploadTask uploadTask = FirebaseStorage.instance
                                     .ref()
                                     .child("foodimages")
@@ -368,6 +388,7 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                               }
 
                               menupic = null;
+                              Navigator.pop(context);
                               Navigator.of(context).pop();
                             }
                           },

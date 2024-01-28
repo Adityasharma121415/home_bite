@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:home_bite/user_screens/dynamic_screen_functions.dart';
+import 'package:home_bite/seller_screens/seller_dynamic_menu_functions.dart';
 import 'package:home_bite/user_screens/my_cart_screen.dart';
 
 class SearchScreen extends StatelessWidget {
@@ -13,7 +13,6 @@ class SearchScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
@@ -23,28 +22,13 @@ class SearchScreen extends StatelessWidget {
                   },
                   icon: Icon(Icons.arrow_back),
                 ),
-                Spacer(),
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    await Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const MyCartPage(),
-                      ),
-                    );
-                  },
-                  icon: Icon(Icons.shopping_cart),
-                  label: Text('Go to Cart'),
-                ),
+                
               ],
             ),
             SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Search Results for "$searchTerm":',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+            Text(
+              'Search Results for "$searchTerm":',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
             Expanded(
@@ -63,7 +47,8 @@ class SearchScreen extends StatelessWidget {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   }
 
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  if (snapshot.data == null ||
+                      snapshot.data!.docs.isEmpty) {
                     return Center(child: Text('No results found.'));
                   }
 
@@ -82,30 +67,31 @@ class SearchScreen extends StatelessWidget {
                         builder: (BuildContext context,
                             AsyncSnapshot<DocumentSnapshot> cookSnapshot) {
                           if (cookSnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return SizedBox(); // Show nothing while waiting
+                              ConnectionState.done) {
+                            Map<String, dynamic>? cookData =
+                                cookSnapshot.data?.data()
+                                    as Map<String, dynamic>?;
+
+                            return SellerEachItemListElement(
+                              cookName: cookData?["name"] ?? "",
+                              image: itemDetails["image"],
+                              location: cookData?["Location"] ?? "",
+                              name: itemDetails["Name"],
+                              price: itemDetails["Price"],
+                              rating: itemDetails["Rating"],
+                              itemid: itemDetails["item-id"],
+                            );
+                          } else {
+                            return SellerEachItemListElement(
+                              cookName: "",
+                              image: itemDetails["image"],
+                              location: "",
+                              name: itemDetails["Name"],
+                              price: itemDetails["Price"],
+                              rating: itemDetails["Rating"],
+                              itemid: itemDetails["item-id"],
+                            );
                           }
-
-                          if (cookSnapshot.hasError) {
-                            return Text('Error: ${cookSnapshot.error}');
-                          }
-
-                          if (!cookSnapshot.hasData) {
-                            return SizedBox(); // Show nothing if data not available
-                          }
-
-                          Map<String, dynamic>? cookData =
-                              cookSnapshot.data!.data() as Map<String, dynamic>?;
-
-                          return SellerEachItemListElement(
-                            cookName: cookData?['name'] ?? "",
-                            image: itemDetails['image'],
-                            location: cookData?['Location'] ?? "",
-                            name: itemDetails['Name'],
-                            price: itemDetails['Price'],
-                            rating: itemDetails['Rating'],
-                            itemid: itemDetails['item-id'],
-                          );
                         },
                       );
                     },

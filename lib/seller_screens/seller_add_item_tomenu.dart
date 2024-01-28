@@ -16,24 +16,24 @@ void addNewItem(BuildContext context, String categoryId, String cookId) {
   File? newItemPic;
 
   void showErrorDialog(BuildContext context, String errorMessage) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Error'),
-        content: Text(errorMessage),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
-}
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(errorMessage),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   showModalBottomSheet(
     isScrollControlled: true,
@@ -50,10 +50,14 @@ void addNewItem(BuildContext context, String categoryId, String cookId) {
                   children: [
                     const SizedBox(
                       height: 60,
-
                     ),
-                    const Text('Select an image and fill all the details to add a new Item.',style: TextStyle(fontWeight: FontWeight.w500),textAlign: TextAlign.center),
-                    const SizedBox(height: 20,),
+                    const Text(
+                        'Select an image and fill all the details to add a new Item.',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                        textAlign: TextAlign.center),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     CupertinoButton(
                       onPressed: () async {
                         XFile? selectedFile = await ImagePicker()
@@ -72,7 +76,8 @@ void addNewItem(BuildContext context, String categoryId, String cookId) {
                           width: 140,
                           height: 140,
                           child: (newItemPic == null)
-                              ? Image.asset('assets/images/imageplaceholder.png')
+                              ? Image.asset(
+                                  'assets/images/imageplaceholder.png')
                               : Image.file(
                                   newItemPic!,
                                   fit: BoxFit.cover,
@@ -132,6 +137,25 @@ void addNewItem(BuildContext context, String categoryId, String cookId) {
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               if (newItemPic != null) {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return const Dialog(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(20.0),
+                                        child: Row(crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            CircularProgressIndicator(),
+                                            SizedBox(width: 20),
+                                            Text("Uploading..."),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
                                 UploadTask uploadTask = FirebaseStorage.instance
                                     .ref()
                                     .child("foodimages")
@@ -146,12 +170,15 @@ void addNewItem(BuildContext context, String categoryId, String cookId) {
                                     categoryId, cookId, downloadURL);
                                 newItemPic = null;
                                 _nameController.clear();
-                            _priceController.clear();
-                            _ratingController.clear();
+                                _priceController.clear();
+                                _ratingController.clear();
+
                                 // ignore: use_build_context_synchronously
                                 Navigator.pop(context);
+                                Navigator.pop(context);
                               } else {
-                                showErrorDialog(context, 'Please select an image.');
+                                showErrorDialog(
+                                    context, 'Please select an image.');
                               }
                             }
                           },
@@ -200,4 +227,3 @@ Future<void> uploadItemToFirestore(
     log('Error uploading item to Firestore: $error');
   }
 }
-

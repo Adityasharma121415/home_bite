@@ -21,8 +21,7 @@ class SellerDynamicMenuPage extends StatefulWidget {
 }
 
 class _SellerDynamicMenuPageState extends State<SellerDynamicMenuPage> {
-
-  User? user=FirebaseAuth.instance.currentUser;
+  User? user = FirebaseAuth.instance.currentUser;
   @override
   Widget build(context) {
     return Scaffold(
@@ -30,10 +29,9 @@ class _SellerDynamicMenuPageState extends State<SellerDynamicMenuPage> {
         child: Center(
           child: Column(
             children: [
-              
               SizedBox(
                 width: double.infinity,
-                height: 205,
+                height: 150,
                 child: Column(
                   children: [
                     Row(
@@ -50,27 +48,28 @@ class _SellerDynamicMenuPageState extends State<SellerDynamicMenuPage> {
                           },
                         ),
                         SizedBox(
-                              child: ElevatedButton.icon(
-                                style: const ButtonStyle(
-                                  shape: MaterialStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(15),
-                                      ),
-                                    ),
+                          child: ElevatedButton.icon(
+                            style: const ButtonStyle(
+                              shape: MaterialStatePropertyAll(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(15),
                                   ),
-                                  shadowColor:
-                                      MaterialStatePropertyAll(Colors.white),
                                 ),
-                                onPressed: () {
-                                  addNewItem(context,widget.categoryid,user!.uid);//to be replaced by actual cookid
-                                },
-                                icon: const Icon(
-                                  Icons.add_box_outlined,
-                                ),
-                                label: const Text('Add Item'),
                               ),
+                              shadowColor:
+                                  MaterialStatePropertyAll(Colors.white),
                             ),
+                            onPressed: () {
+                              addNewItem(context, widget.categoryid,
+                                  user!.uid); //to be replaced by actual cookid
+                            },
+                            icon: const Icon(
+                              Icons.add_box_outlined,
+                            ),
+                            label: const Text('Add Item'),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 25),
@@ -81,102 +80,89 @@ class _SellerDynamicMenuPageState extends State<SellerDynamicMenuPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    SizedBox(
-                      height: 68,
-                      width: 400,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: TextField(
-                          textAlignVertical: TextAlignVertical.bottom,
-                          controller: SearchController(),
-                          decoration: const InputDecoration(
-                            labelText: 'Search',
-                            hintText: 'Enter your search term',
-                            prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0)),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    
                   ],
                 ),
               ),
-              SizedBox(
-                width: double.infinity,
-                height: 620,
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection("menu")
-                      .where('category-id', isEqualTo: widget.categoryid)
-                      .where('cook-id',isEqualTo: user!.uid)//tobe replaced by actual cook id
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.active) {
-                      if (snapshot.hasData && snapshot.data != null) {
-                        if (snapshot.data!.docs.isEmpty) {
-                          // Display a message or widget when no items are found
-                          return const Center(
-                            child: Text("You don't have any items in this category."),
-                          );
-                        }
-        
-                        return ListView.builder(
-                          padding: EdgeInsets.zero,
-                          itemCount: snapshot.data!.docs.length,
-                          itemBuilder: (context, index) {
-                            Map<String, dynamic> userMap =
-                                snapshot.data!.docs[index].data()
-                                    as Map<String, dynamic>;
-        
-                            return FutureBuilder<DocumentSnapshot>(
-                              future: FirebaseFirestore.instance
-                                  .collection('cooks')
-                                  .doc(userMap['cook-id'])
-                                  .get(),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<DocumentSnapshot> cookSnapshot) {
-                                if (cookSnapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  Map<String, dynamic>? cookData =
-                                      cookSnapshot.data?.data()
-                                          as Map<String, dynamic>?;
-        
-                                  return SellerEachItemListElement(
-                                    cookName: cookData!["name"],
-                                    image: userMap["image"],
-                                    location: cookData["Location"],
-                                    name: userMap["Name"],
-                                    price: userMap["Price"],
-                                    rating: userMap["Rating"],
-                                    itemid: userMap["item-id"],
-                                  );
-                                } else {
-                                  return SellerEachItemListElement(
-                                    cookName: "",
-                                    image: userMap["image"],
-                                    location: "",
-                                    name: userMap["Name"],
-                                    price: userMap["Price"],
-                                    rating: userMap["Rating"],
-                                    itemid: userMap["item-id"],
-                                  );
-                                }
-                              },
+              Expanded(
+                child: SizedBox(
+                  width: double.infinity,
+                  
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection("menu")
+                        .where('category-id', isEqualTo: widget.categoryid)
+                        .where('cook-id',
+                            isEqualTo:
+                                user!.uid) //tobe replaced by actual cook id
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.active) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          if (snapshot.data!.docs.isEmpty) {
+                            // Display a message or widget when no items are found
+                            return const Center(
+                              child: Text(
+                                  "You don't have any items in this category."),
                             );
-                          },
-                        );
+                          }
+                          
+                          return ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: snapshot.data!.docs.length,
+                            itemBuilder: (context, index) {
+                              Map<String, dynamic> userMap =
+                                  snapshot.data!.docs[index].data()
+                                      as Map<String, dynamic>;
+                          
+                              return FutureBuilder<DocumentSnapshot>(
+                                future: FirebaseFirestore.instance
+                                    .collection('cooks')
+                                    .doc(userMap['cook-id'])
+                                    .get(),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<DocumentSnapshot>
+                                        cookSnapshot) {
+                                  if (cookSnapshot.connectionState ==
+                                      ConnectionState.done) {
+                                    Map<String, dynamic>? cookData =
+                                        cookSnapshot.data?.data()
+                                            as Map<String, dynamic>?;
+                          
+                                    return SellerEachItemListElement(
+                                      cookName: cookData!["name"],
+                                      image: userMap["image"],
+                                      location: cookData["Location"],
+                                      name: userMap["Name"],
+                                      price: userMap["Price"],
+                                      rating: userMap["Rating"],
+                                      itemid: userMap["item-id"],
+                                    );
+                                  } else {
+                                    return SellerEachItemListElement(
+                                      cookName: "",
+                                      image: userMap["image"],
+                                      location: "",
+                                      name: userMap["Name"],
+                                      price: userMap["Price"],
+                                      rating: userMap["Rating"],
+                                      itemid: userMap["item-id"],
+                                    );
+                                  }
+                                },
+                              );
+                            },
+                          );
+                        } else {
+                          return const Text('No Data found');
+                        }
                       } else {
-                        return const Text('No Data found');
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
                       }
-                    } else {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                  },
+                    },
+                  ),
                 ),
               ),
             ],

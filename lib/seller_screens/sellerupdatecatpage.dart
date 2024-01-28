@@ -18,82 +18,63 @@ class _SellerCategoryPageState extends State<SellerCategoryPage> {
   Widget build(context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            color: const Color.fromARGB(255, 255, 255, 255),
-            child: Center(
-              child: Column(
-                children: [
-                  
-                  SizedBox(
-                    width: double.infinity,
-                    height: 205,
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              icon: const Icon(Icons.arrow_back),
-                              color: const Color.fromARGB(255, 214, 0, 0),
-                            ),
-                            SizedBox(
-                              child: ElevatedButton.icon(
-                                style: const ButtonStyle(
-                                  shape: MaterialStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(15),
-                                      ),
+        child: Container(
+          color: const Color.fromARGB(255, 255, 255, 255),
+          child: Center(
+            child: Column(
+              children: [
+                
+                SizedBox(
+                  width: double.infinity,
+                  height: 150,
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: const Icon(Icons.arrow_back),
+                            color: const Color.fromARGB(255, 214, 0, 0),
+                          ),
+                          SizedBox(
+                            child: ElevatedButton.icon(
+                              style: const ButtonStyle(
+                                shape: MaterialStatePropertyAll(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(15),
                                     ),
                                   ),
-                                  shadowColor:
-                                      MaterialStatePropertyAll(Colors.white),
                                 ),
-                                onPressed: () {},
-                                icon: const Icon(
-                                  Icons.add_box_outlined,
-                                ),
-                                label: const Text('Add Category'),
+                                shadowColor:
+                                    MaterialStatePropertyAll(Colors.white),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 25),
-                        Text(
-                          widget.categorytype,
-                          style: GoogleFonts.salsa(
-                              textStyle: const TextStyle(fontSize: 38)),
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 68,
-                          width: 400,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: TextField(
-                              textAlignVertical: TextAlignVertical.bottom,
-                              controller: SearchController(),
-                              decoration: const InputDecoration(
-                                labelText: 'Search',
-                                hintText: 'Enter your search term',
-                                prefixIcon: Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
+                              onPressed: () {},
+                              icon: const Icon(
+                                Icons.add_box_outlined,
                               ),
+                              label: const Text('Add Category'),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                      const SizedBox(height: 25),
+                      Text(
+                        widget.categorytype,
+                        style: GoogleFonts.salsa(
+                            textStyle: const TextStyle(fontSize: 38)),
+                      ),
+                      
+                      
+                    ],
                   ),
-                  SizedBox(
+                ),
+                Expanded(
+                  child: SizedBox(
                     width: double.infinity,
                     height: 620,
                     child: Padding(
@@ -109,16 +90,16 @@ class _SellerCategoryPageState extends State<SellerCategoryPage> {
                             return const Center(
                               child: CircularProgressIndicator(),
                             );
-        
+                  
                             // Loading indicator while fetching data
                           }
-        
+                  
                           if (snapshot.hasError) {
                             return Text('Error: ${snapshot.error}');
                           }
-        
+                  
                           final categories = snapshot.data!.docs;
-        
+                  
                           return GridView.builder(
                             padding: EdgeInsets.zero,
                             gridDelegate:
@@ -137,8 +118,8 @@ class _SellerCategoryPageState extends State<SellerCategoryPage> {
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

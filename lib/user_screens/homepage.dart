@@ -1,13 +1,13 @@
-import 'dart:developer';
+// import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:home_bite/user_screens/categories_page.dart';
-import 'package:home_bite/user_screens/loginpage.dart';
+// import 'package:home_bite/user_screens/loginpage.dart';
 import 'package:home_bite/user_screens/search_screen.dart';
 import 'package:home_bite/user_screens/user_profile.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     ));
                   },
-                  child: Image.asset('assets/images/profile.png',
+                  child: Image.asset('assets/images/userProfile.png',
                       width: 100, height: 100)),
               const SizedBox(height: 10),
               Text(
