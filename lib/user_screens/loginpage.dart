@@ -10,6 +10,7 @@ import 'package:home_bite/user_screens/forgotpassword.dart';
 
 import 'package:home_bite/user_screens/homepage.dart';
 import 'package:home_bite/user_screens/signuppage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -56,65 +57,68 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void login() async {
-    String email = emailcontrol.text.trim();
-    String password = passwordcontrol.text.trim();
+void login() async {
+  String email = emailcontrol.text.trim();
+  String password = passwordcontrol.text.trim();
 
-    if (email == "" || password == "") {
-      _showErrorDialog('No fields can be Empty', context);
-    } else {
-      setState(() {
-        _isLoading = true;
-      });
-      try {
-        UserCredential userCredentials = await FirebaseAuth.instance
-            .signInWithEmailAndPassword(email: email, password: password);
-        log('Successfully Logged In');
-        if (userCredentials.user != null) {
-          DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-              .collection('users')
-              .doc(userCredentials.user!.uid)
-              .get();
+  if (email == "" || password == "") {
+    _showErrorDialog('No fields can be Empty', context);
+  } else {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      UserCredential userCredentials = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      log('Successfully Logged In');
+      if (userCredentials.user != null) {
+        DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredentials.user!.uid)
+            .get();
 
-          if (userSnapshot.exists) {
-            Map<String, dynamic> userData =
-                userSnapshot.data() as Map<String, dynamic>;
-            String userRole = userData['role'];
+        if (userSnapshot.exists) {
+          Map<String, dynamic> userData =
+              userSnapshot.data() as Map<String, dynamic>;
+          String userRole = userData['role'];
 
-            Navigator.popUntil(context, (route) => route.isFirst);
+          // Save user ID and role to SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('user_id', userCredentials.user!.uid);
+          await prefs.setString('user_role', userRole);
 
-            if (userRole == 'Cook') {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SellerHomepage(),
-                ),
-              );
-            } else if (userRole == 'Customer') {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomePage(),
-                ),
-              );
-            }
-          } else {
-            // Handle case where user document does not exist
-            print('User document does not exist');
+          Navigator.popUntil(context, (route) => route.isFirst);
+
+          if (userRole == 'Cook') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SellerHomepage(),
+              ),
+            );
+          } else if (userRole == 'Customer') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePage(),
+              ),
+            );
           }
+        } else {
+          // Handle case where user document does not exist
+          print('User document does not exist');
         }
-      } on FirebaseAuthException catch (ex) {
-        _showErrorDialog(ex.code.toString(), context);
-        log(
-          ex.code.toString(),
-        );
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
       }
+    } on FirebaseAuthException catch (ex) {
+      _showErrorDialog(ex.code.toString(), context);
+      log(ex.code.toString());
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
+}
 
   @override
   Widget build(context) {

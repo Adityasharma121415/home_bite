@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class MyOrdersPage extends StatefulWidget {
   const MyOrdersPage({Key? key});
@@ -11,7 +12,7 @@ class MyOrdersPage extends StatefulWidget {
 }
 
 class _MyOrdersPageState extends State<MyOrdersPage> {
-  // User? user = FirebaseAuth.instance.currentUser;
+  User? user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +61,8 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                   stream: FirebaseFirestore.instance
                       .collection('orders')
                       .where('user-id',
-                          isEqualTo: 'dI98g5eWiNVce6U3zyJqz90ySPp1')
+                          isEqualTo:
+                              user!.uid)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.active) {
@@ -72,7 +74,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                           );
                         }
 
-                        return ListView.builder(
+                        return ListView.builder(padding: EdgeInsets.zero,
                           itemCount: snapshot.data!.docs.length,
                           itemBuilder: (context, index) {
                             Map<String, dynamic> orders =
@@ -99,6 +101,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                                     orderid: orders['order-id'],
                                     price: orders['total-price'],
                                     timestamp: orders['timestamp'],
+                                    status: orders['status'],
                                   );
                                 } else {
                                   return MyOrderPageItemLists(
@@ -107,6 +110,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                                     orderid: orders['order-id'],
                                     price: orders['total-price'],
                                     timestamp: orders['timestamp'],
+                                    status: orders['status'],
                                   );
                                 }
                               },
@@ -135,6 +139,7 @@ class MyOrderPageItemLists extends StatefulWidget {
     required this.price,
     required this.timestamp,
     required this.orderid,
+    required this.status,
   });
 
   final List<dynamic> listOfItems;
@@ -142,22 +147,22 @@ class MyOrderPageItemLists extends StatefulWidget {
   final String cookName;
   final int price;
   final Timestamp timestamp;
-
+  final String status;
   @override
   State<MyOrderPageItemLists> createState() => _MyOrderPageItemListsState();
 }
 
 class _MyOrderPageItemListsState extends State<MyOrderPageItemLists> {
-  
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: SingleChildScrollView(
         child: ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-          child: Container(margin: EdgeInsets.all(4),
-            decoration: const BoxDecoration(color: Colors.blue),
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          child: Container(
+            margin: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(color: Color.fromARGB(255, 208, 212, 215)),
             padding: const EdgeInsets.all(10),
             child: Column(
               children: [
@@ -174,16 +179,26 @@ class _MyOrderPageItemListsState extends State<MyOrderPageItemLists> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(itemMap['itemName'],
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600)),
                               Text(
-                                  'Rs ${itemMap['itemPrice'].toString()} * ${itemMap['quantity'].toString()}',
-                                  style:const  TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600)),
+                                itemMap['itemName'],
+                                style: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w600),
+                              ),
+                              
+                              Text('QN: ${itemMap['quantity'].toString()}',style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w400),),
+                                    Row(
+                                children: [
+                                  const Icon(Icons.currency_rupee_rounded,size: 18,),
+                                  Text(
+                                    itemMap['itemPrice'].toString() ,
+                                    style: const TextStyle(
+                                        fontSize: 18, fontWeight: FontWeight.w400),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                           Padding(
@@ -203,30 +218,71 @@ class _MyOrderPageItemListsState extends State<MyOrderPageItemLists> {
                     );
                   },
                 ),
-                 SizedBox(
+                SizedBox(height: 30,),
+                SizedBox(
                   width: double.infinity,
                   child: Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(widget.orderid,
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.w600)),
-                           Text(widget.timestamp.toDate().toString(),
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.w600)),
+                          Row(
+                            children: [
+                              const Text('Order Id: ',
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700)),
+                              Text(widget.orderid,
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              const Text('Time: ',
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700)),
+                              Text(
+                                  DateFormat.yMd()
+                                      .add_jm()
+                                      .format(widget.timestamp.toDate()),
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600)),
+                            ],
+                          ),
                         ],
                       ),
-                       Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(widget.cookName,
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.w600)),
-                          Text(widget.price.toString(),
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.w600)),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.person,
+                                size: 20,
+                              ),
+                              Text(' ${widget.cookName}',
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500)),
+                            ],
+                          ),
+                          
+                          Text(' ${(widget.status=='pending')?'Status: ${widget.status}':'Status: ${widget.status}'}',style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600)),
+                          Row(
+                            children: [
+                              const Icon(Icons.currency_rupee_sharp),
+                              Text(widget.price.toString(),
+                                  style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w600)),
+                            ],
+                          ),
                         ],
                       ),
                     ],

@@ -3,8 +3,10 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:home_bite/seller_screens/seller_currentorder_page.dart';
 import 'package:home_bite/seller_screens/sellerupdatecatpage.dart';
 import 'package:home_bite/user_screens/loginpage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SellerHomepage extends StatefulWidget {
   const SellerHomepage({super.key});
@@ -17,7 +19,10 @@ class SellerHomepage extends StatefulWidget {
 
 class _SellerHomepageState extends State<SellerHomepage> {
 
-  void logout() {
+  void logout()async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_id');
+    await prefs.remove('user_role');
     FirebaseAuth.instance.signOut();
     log('logged out');
     Navigator.popUntil(context, (route) => route.isFirst);
@@ -77,7 +82,11 @@ class _SellerHomepageState extends State<SellerHomepage> {
                     child: Column(
                       children: [
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) {
+                             return CurrentOrders();
+                            },));
+                          },
                           style: ButtonStyle(
                             backgroundColor: const MaterialStatePropertyAll(
                               Color.fromARGB(255, 40, 40, 41),

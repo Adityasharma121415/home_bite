@@ -26,10 +26,11 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: (){
         
-      },child: Icon(Icons.filter_alt),
-      shape: CircleBorder(eccentricity: 1),
-      backgroundColor: Color.fromARGB(255, 255, 255, 255),
-      foregroundColor: Color.fromARGB(255, 196, 16, 31),
+      },
+      shape: const CircleBorder(eccentricity: 1),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      foregroundColor: const Color.fromARGB(255, 196, 16, 31),
+      child: const Icon(Icons.filter_alt),
       ),
       body: Center(
         child: Column(
@@ -37,7 +38,7 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
             const SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
-              height: 205,
+              height: 150,
               child: Column(
                 children: [
                   Row(
@@ -91,26 +92,7 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                         textStyle: const TextStyle(fontSize: 38)),
                   ),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    height: 68,
-                    width: 400,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: TextField(
-                        textAlignVertical: TextAlignVertical.bottom,
-                        controller: SearchController(),
-                        decoration: const InputDecoration(
-                          labelText: 'Search',
-                          hintText: 'Enter your search term',
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0)),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  
                 ],
               ),
             ),

@@ -28,7 +28,7 @@ class _CategoryPageState extends State<CategoryPage> {
             const SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
-              height: 205,
+              height: 150,
               child: Column(
                 children: [
                   Row(
@@ -75,26 +75,7 @@ class _CategoryPageState extends State<CategoryPage> {
                         textStyle: const TextStyle(fontSize: 38)),
                   ),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    height: 68,
-                    width: 400,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: TextField(
-                        textAlignVertical: TextAlignVertical.bottom,
-                        controller: SearchController(),
-                        decoration: const InputDecoration(
-                          labelText: 'Search',
-                          hintText: 'Enter your search term',
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0)),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  
                 ],
               ),
             ),

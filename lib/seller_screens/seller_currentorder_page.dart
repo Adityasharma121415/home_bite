@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class MyOrdersPage extends StatefulWidget {
-  const MyOrdersPage({Key? key}) : super(key: key);
+class CurrentOrders extends StatefulWidget {
+  const CurrentOrders({Key? key}) : super(key: key);
 
   @override
-  _MyOrdersPageState createState() => _MyOrdersPageState();
+  _CurrentOrdersState createState() => _CurrentOrdersState();
 }
 
-class _MyOrdersPageState extends State<MyOrdersPage> {
+class _CurrentOrdersState extends State<CurrentOrders> {
   User? user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Orders'),
+        title: Text('Current Orders'),
       ),
       body: Center(
         child: Column(
@@ -46,21 +46,37 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                     );
                   }
 
+                  // Convert Timestamp to DateTime and sort in ascending order
+                  orders.sort((a, b) => (a['timestamp'] as Timestamp)
+                      .toDate()
+                      .compareTo((b['timestamp'] as Timestamp).toDate()));
+
                   return ListView.builder(
                     itemCount: orders.length,
                     itemBuilder: (context, index) {
                       var orderData =
                           orders[index].data() as Map<String, dynamic>;
 
-                      return OrderItemDesign(
-                        cookName: '',
-                        orderId: orderData['order-id'] ?? '',
-                        status: orderData['status'] ?? '',
-                        timestamp: orderData['timestamp'] ??
-                            Timestamp.fromDate(DateTime.now()),
-                        totalPrice: (orderData['total-price'] ?? 0).toDouble(),
-                        items: orderData['items'] ?? [],
-                      );
+                      // Check if cook-id matches the current user's id and status is pending
+                      if (orderData['cook-id'] == user?.uid &&
+                          orderData['status'] == 'pending') {
+                        return OrderItemDesign(
+                          orderId: orderData['order-id'] ?? '',
+                          status: orderData['status'] ?? '',
+                          timestamp: orderData['timestamp'] ??
+                              Timestamp.fromDate(DateTime.now()),
+                          totalPrice:
+                              (orderData['total-price'] ?? 0).toDouble(),
+                          items: orderData['items'] ?? [],
+                          markAsCompleted: () {
+                            // Mark order as completed function
+                            markOrderAsCompleted(orderData['order-id']);
+                          },
+                        );
+                      } else {
+                        // If conditions are not met, return an empty container
+                        return Container();
+                      }
                     },
                   );
                 },
@@ -74,14 +90,34 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
 
   Future<QuerySnapshot> fetchOrders() async {
     try {
+      // Modify the query to include conditions for cook-id and status
       return await FirebaseFirestore.instance
           .collection('orders')
-          .where('user-id', isEqualTo: 'dI98g5eWiNVce6U3zyJqz90ySPp1')
+          .where('cook-id', isEqualTo: user?.uid)
+          .where('status', isEqualTo: 'pending')
           .get();
     } catch (error) {
       print('Error fetching orders: $error');
       throw error;
     }
+  }
+
+  // Function to mark an order as completed
+  void markOrderAsCompleted(String orderId) {
+    // You can implement the logic here to update the order status in Firestore
+    // For example, you can use the orderId to update the 'status' field to 'completed'
+    FirebaseFirestore.instance
+        .collection('orders')
+        .doc(orderId)
+        .update({'status': 'completed'}).then((value) {
+      // Success, you can add any additional logic here
+      print('Order marked as completed successfully!');
+      // You may want to update the UI or perform other actions after marking as completed
+      setState(() {});
+    }).catchError((error) {
+      // Handle errors, if any
+      print('Error marking order as completed: $error');
+    });
   }
 }
 
@@ -92,8 +128,8 @@ class OrderItemDesign extends StatelessWidget {
     required this.status,
     required this.timestamp,
     required this.totalPrice,
-    required this.items, 
-    required  this.cookName,
+    required this.items,
+    required this.markAsCompleted,
   }) : super(key: key);
 
   final String orderId;
@@ -101,7 +137,7 @@ class OrderItemDesign extends StatelessWidget {
   final Timestamp timestamp;
   final double totalPrice;
   final List<dynamic> items;
-  final String cookName;
+  final VoidCallback markAsCompleted;
 
   @override
   Widget build(BuildContext context) {
@@ -129,13 +165,23 @@ class OrderItemDesign extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Status: $status',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color.fromARGB(255, 0, 0, 0),
-                  fontWeight: FontWeight.w700,
-                ),
+              child: Row(
+                children: [
+                  Text(
+                    'Status: $status',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color.fromARGB(255, 0, 0, 0),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Spacer(),
+                  TextButton.icon(
+                    onPressed: markAsCompleted,
+                    icon: Icon(Icons.download_done,size: 20,color: Colors.red,),
+                    label: Text('Prepared ?',style: TextStyle(color: Colors.red)),
+                  ),
+                ],
               ),
             ),
             Padding(
@@ -150,17 +196,6 @@ class OrderItemDesign extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Cook: $cookName',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color.fromARGB(255, 0, 0, 0),
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            const Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 'Items:',
@@ -180,7 +215,6 @@ class OrderItemDesign extends StatelessWidget {
                     Text('Item ID: ${item['item-id'] ?? ''}'),
                     Text('Quantity: ${item['quantity'] ?? 0}'),
                     Text('Price: Rs ${item['itemPrice'] ?? 0}'),
-                    
                   ],
                 ),
                 trailing: SizedBox(

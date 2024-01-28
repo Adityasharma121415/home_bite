@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:home_bite/user_screens/categories_page.dart';
 import 'package:home_bite/user_screens/loginpage.dart';
+import 'package:home_bite/user_screens/search_screen.dart';
+import 'package:home_bite/user_screens/user_profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,19 +22,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String _userName = '';
+  final TextEditingController _searchController = TextEditingController();
 
-  void logout() {
-    FirebaseAuth.instance.signOut();
-    log('logged out');
-    Navigator.popUntil(context, (route) => route.isFirst);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const LoginPage(),
-      ),
-    );
-  }
+  String _userName = '';
 
   @override
   void initState() {
@@ -55,10 +49,66 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _searchItems() async {
+    String searchTerm = _searchController.text.trim();
+
+    if (searchTerm.isNotEmpty) {
+      try {
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+            .collection('menu')
+            .where('Name', isEqualTo: searchTerm)
+            .get();
+
+        if (querySnapshot.docs.isNotEmpty) {
+          // ignore: use_build_context_synchronously
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SearchScreen(searchTerm: searchTerm),
+            ),
+          );
+
+          _searchController.clear();
+        } else {
+          // Show a message or take action if no matching item found
+          // ignore: use_build_context_synchronously
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text(
+                  'No match found',
+                ),
+                titleTextStyle:
+                    const TextStyle(fontSize: 18, color: Colors.black),
+                content: const SizedBox(
+                  width: 210,
+                  height: 50,
+                  child: Center(
+                    child: Text(
+                        'Try correcting the spelling. Consider case sensitivity.'),
+                  ),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      } catch (error) {
+        print('Error searching items: $error');
+      }
+    }
+  }
+
   @override
   Widget build(context) {
-    void changethePage() {}
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Center(
@@ -77,17 +127,19 @@ class _HomePageState extends State<HomePage> {
                     child: const Text('B.M.S College of Engineering'),
                   ),
                   const Spacer(),
-                  IconButton(
-                    onPressed: logout,
-                    icon: const Icon(
-                      Icons.logout,
-                      color: Colors.green,
-                    ),
-                  )
                 ],
               ),
               const SizedBox(height: 10),
-              Image.asset('assets/images/profile.png', width: 100, height: 100),
+              GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) {
+                        return const UserProfile();
+                      },
+                    ));
+                  },
+                  child: Image.asset('assets/images/profile.png',
+                      width: 100, height: 100)),
               const SizedBox(height: 10),
               Text(
                 'Welcome $_userName',
@@ -102,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(10.0),
                   child: TextField(
                     textAlignVertical: TextAlignVertical.bottom,
-                    controller: SearchController(),
+                    controller: _searchController,
                     decoration: const InputDecoration(
                       labelText: 'Search',
                       hintText: 'Enter your search term',
@@ -113,6 +165,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
+                    onSubmitted: (_) => _searchItems(),
                   ),
                 ),
               ),
@@ -127,7 +180,49 @@ class _HomePageState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const CategoryPage(categorytype: 'Categories'),
+                              builder: (context) =>
+                                  const CategoryPage(categorytype: 'Cooks'),
+                            ),
+                          );
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: const MaterialStatePropertyAll(
+                            Color.fromARGB(255, 40, 40, 41),
+                          ),
+                          shape: MaterialStatePropertyAll(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          fixedSize: const MaterialStatePropertyAll(
+                            Size.fromWidth(390),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: Image.asset(
+                                  'assets/images/home_image2.jpg',
+                                  fit: BoxFit.cover),
+                            ),
+                            const SizedBox(height: 5),
+                            const Text(
+                              'ORDER BY COOKS',
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CategoryPage(
+                                  categorytype: 'Categories'),
                             ),
                           );
                         },
@@ -155,46 +250,6 @@ class _HomePageState extends State<HomePage> {
                             const SizedBox(height: 5),
                             const Text(
                               'ORDER BY CATEGORIES',
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const CategoryPage(categorytype: 'Cooks'),
-                            ),
-                          );
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: const MaterialStatePropertyAll(
-                            Color.fromARGB(255, 40, 40, 41),
-                          ),
-                          shape: MaterialStatePropertyAll(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          fixedSize: const MaterialStatePropertyAll(
-                            Size.fromWidth(390),
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: Image.asset(
-                                  'assets/images/home_image2.jpg',
-                                  fit: BoxFit.cover),
-                            ),
-                            const SizedBox(height: 5),
-                            const Text(
-                              'ORDER BY POPULARITY',
                               style:
                                   TextStyle(fontSize: 18, color: Colors.white),
                             ),
