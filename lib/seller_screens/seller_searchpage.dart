@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:home_bite/seller_screens/seller_dynamic_menu_functions.dart';
-import 'package:home_bite/user_screens/my_cart_screen.dart';
+
 
 class SearchScreen extends StatelessWidget {
   final String searchTerm;
