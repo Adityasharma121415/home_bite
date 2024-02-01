@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SellerHomepage extends StatefulWidget {
   const SellerHomepage({super.key});
 
+
   @override
   State<SellerHomepage> createState() {
     return _SellerHomepageState();
@@ -20,7 +21,34 @@ class SellerHomepage extends StatefulWidget {
 }
 
 class _SellerHomepageState extends State<SellerHomepage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _searchController = TextEditingController();
+  String _userName = '';
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  void _loadUserName() async {
+    User? user = _auth.currentUser;
+
+    if (user != null) {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(user.uid).get();
+
+      if (userDoc.exists) {
+        setState(
+          () {
+            _userName = userDoc['name'];
+          },
+        );
+      }
+    }
+  }
+
+  
 
   void logout()async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -28,7 +56,9 @@ class _SellerHomepageState extends State<SellerHomepage> {
     await prefs.remove('user_role');
     FirebaseAuth.instance.signOut();
     log('logged out');
+    // ignore: use_build_context_synchronously
     Navigator.popUntil(context, (route) => route.isFirst);
+    // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -135,7 +165,7 @@ class _SellerHomepageState extends State<SellerHomepage> {
               Image.asset('assets/images/profile.png', width: 100, height: 100),
               const SizedBox(height: 10),
               Text(
-                'Welcome Seller',
+                'Welcome $_userName',
                 style:
                     GoogleFonts.salsa(textStyle: const TextStyle(fontSize: 20)),
               ),

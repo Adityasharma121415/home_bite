@@ -9,7 +9,7 @@ class MyCartPage extends StatefulWidget {
   const MyCartPage({super.key});
 
   @override
-  State<MyCartPage> createState(){
+  State<MyCartPage> createState() {
     return _MyCartPageState();
   }
 }
@@ -45,7 +45,6 @@ class _MyCartPageState extends State<MyCartPage> {
                         ),
                         onPressed: () {
                           Navigator.pop(context);
-                          
                         },
                       ),
                     ],
@@ -71,21 +70,24 @@ class _MyCartPageState extends State<MyCartPage> {
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      log('position1');
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
                     }
 
                     if (snapshot.hasError) {
-                      log('position2');
                       return Text('Error: ${snapshot.error}');
                     }
 
                     if (!snapshot.hasData ||
                         !snapshot.data!.exists ||
                         snapshot.data!.data() == null) {
-                      log('position3');
-                      return  Center(
-                        child: SizedBox(width: 150,height: 150,child: Image.asset('assets/images/emptycart.webp',),),
+                      return Center(
+                        child: SizedBox(
+                          width: 150,
+                          height: 150,
+                          child: Image.asset('assets/images/emptycart.webp'),
+                        ),
                       );
                     }
 
@@ -94,7 +96,7 @@ class _MyCartPageState extends State<MyCartPage> {
                         snapshot.data!.data() as Map<String, dynamic>;
 
                     List<dynamic> cartItems = cartData['cart-items'];
-                    cartToOrder=cartItems;
+                    cartToOrder = cartItems;
                     // totalamt = 0;
 
                     return ListView.builder(
@@ -107,7 +109,6 @@ class _MyCartPageState extends State<MyCartPage> {
                         String? itemId = cartItemMap['item-id'];
 
                         if (itemId == null) {
-                          log('position4');
                           // Handle the case where 'item-id' or 'cook-id' is null
                           return const SizedBox.shrink();
                         }
@@ -121,7 +122,6 @@ class _MyCartPageState extends State<MyCartPage> {
                           builder: (context, itemSnapshot) {
                             if (itemSnapshot.connectionState ==
                                 ConnectionState.done) {
-                              log('position5');
                               Map<String, dynamic>? itemData = itemSnapshot.data
                                   ?.data() as Map<String, dynamic>?;
 
@@ -141,7 +141,6 @@ class _MyCartPageState extends State<MyCartPage> {
                                         cookSnapshot) {
                                   if (cookSnapshot.connectionState ==
                                       ConnectionState.done) {
-                                    log('position6');
                                     Map<String, dynamic>? cookData =
                                         cookSnapshot.data?.data()
                                             as Map<String, dynamic>?;
@@ -150,18 +149,16 @@ class _MyCartPageState extends State<MyCartPage> {
                                       // Handle the case where cook data is null
                                       return const SizedBox.shrink();
                                     }
-                                    log('positionfinal');
+
                                     // totalamt += itemData['Price'] *
                                     //     cartItemMap['quantity'];
                                     return CartItemDesign(
-                                      cookName:
-                                          cookData['name'] ?? 'Unknown Cook',
+                                      cookName: cookData['name'] ?? 'Unknown Cook',
                                       name: itemData['Name'] ?? 'Unknown Item',
                                       price: itemData['Price'] ?? 0,
                                       quantity: cartItemMap['quantity'] ?? 0,
                                       imageUrl: itemData['image'] ?? '',
                                       itemId: itemData['item-id'],
-                                      
                                     );
                                   } else {
                                     return Container();
@@ -194,13 +191,13 @@ class _MyCartPageState extends State<MyCartPage> {
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return const CircularProgressIndicator();
+                              return const Center(child:  CircularProgressIndicator());
                             }
                             if (snapshot.hasError) {
                               return Text('Error: ${snapshot.error}');
                             }
                             final totalAmount = snapshot.data ?? 0;
-                            checkoutamount=totalAmount;
+                            checkoutamount = totalAmount;
                             return Row(
                               children: [
                                 const Text(
@@ -227,8 +224,9 @@ class _MyCartPageState extends State<MyCartPage> {
                   ),
                   GestureDetector(
                     onTap: () async {
-                      if(cartToOrder!=null && checkoutamount!=null){
-                        await handleCheckout(cartToOrder,checkoutamount,user!.uid);
+                      if (cartToOrder != null && checkoutamount != null) {
+                        await handleCheckout(
+                            cartToOrder, checkoutamount, user!.uid);
                       }
                     },
                     child: Container(
@@ -260,56 +258,52 @@ class _MyCartPageState extends State<MyCartPage> {
   }
 
 
-  
-  Future<void> handleCheckout(List<dynamic>? cartToOrder,num? checkoutamount,String userId) async {
 
-    List<Map<String,dynamic>> extractedElements=[];
-    String cookId="";
+  Future<void> handleCheckout(
+      List<dynamic>? cartToOrder, num? checkoutamount, String userId) async {
+    List<Map<String, dynamic>> extractedElements = [];
+    String cookId = "";
 
-    if(cartToOrder!=null){
-      for(Map<String,dynamic> elements in cartToOrder){
-         DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('menu').doc(elements['item-id']).get();
+    if (cartToOrder != null) {
+      for (Map<String, dynamic> elements in cartToOrder) {
+        DocumentSnapshot snapshot = await FirebaseFirestore.instance
+            .collection('menu')
+            .doc(elements['item-id'])
+            .get();
 
-         Map<String ,dynamic> menuData=snapshot.data() as Map<String,dynamic>;
-         cookId=menuData['cook-id'];
+        Map<String, dynamic> menuData = snapshot.data() as Map<String, dynamic>;
+        cookId = menuData['cook-id'];
 
-         Map<String,dynamic> menuDataOrdered={
-          'itemName':menuData['Name'],
-          'itemPrice':menuData['Price'],
-          
-          'image':menuData['image'],
-          'item-id':menuData['item-id'],
-          
-          'quantity':elements['quantity'],
-
-         };
-         extractedElements.add(menuDataOrdered);
-
+        Map<String, dynamic> menuDataOrdered = {
+          'itemName': menuData['Name'],
+          'itemPrice': menuData['Price'],
+          'image': menuData['image'],
+          'item-id': menuData['item-id'],
+          'quantity': elements['quantity'],
+        };
+        extractedElements.add(menuDataOrdered);
       }
-      Map<String,dynamic> dataToBeUploaded={
-      'items':extractedElements,
-      'status':'pending',
-      'timestamp':DateTime.now(),
-      'total-price':checkoutamount,
-      'cook-id':cookId,
-      'user-id':userId,
-      'userLocation':'TobeUpdated',
-    };
-    // Your checkout logic goes here
-    DocumentReference docRef= await FirebaseFirestore.instance.collection('orders').add(dataToBeUploaded);
-    String orderId=docRef.id;
-    await docRef.update({'order-id':orderId});
-    // Delete the cart document
-    await FirebaseFirestore.instance
-        .collection('carts')
-        .doc(user?.uid)
-        .delete();
-
-
+      Map<String, dynamic> dataToBeUploaded = {
+        'items': extractedElements,
+        'status': 'pending',
+        'timestamp': DateTime.now(),
+        'total-price': checkoutamount,
+        'cook-id': cookId,
+        'user-id': userId,
+        'userLocation': 'TobeUpdated',
+      };
+      // Your checkout logic goes here
+      DocumentReference docRef = await FirebaseFirestore.instance
+          .collection('orders')
+          .add(dataToBeUploaded);
+      String orderId = docRef.id;
+      await docRef.update({'order-id': orderId});
+      // Delete the cart document
+      await FirebaseFirestore.instance
+          .collection('carts')
+          .doc(user?.uid)
+          .delete();
     }
-
-
-    
   }
 
   Stream<num> calculateTotalAmountStream(String userId) {
@@ -365,5 +359,3 @@ class _MyCartPageState extends State<MyCartPage> {
     }
   }
 }
-
-

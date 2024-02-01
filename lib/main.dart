@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:home_bite/seller_screens/seller_homepage.dart';
 import 'package:home_bite/user_screens/homepage.dart';
 import 'package:home_bite/user_screens/loginpage.dart';
+import 'package:home_bite/user_screens/spalsh_screen.dart';
 // import 'package:home_bite/user_screens/my_orders_page.dart';
 import 'firebase_options.dart';
 // import 'package:flutter/services.dart';
@@ -51,7 +52,7 @@ class _MyAppState extends State<MyApp> {
           ? userRole == 'Cook'
               ? SellerHomepage()
               : HomePage()
-          : LoginPage(),
+          : MySplashScreen()//LoginPage(),
     );
   }
 }

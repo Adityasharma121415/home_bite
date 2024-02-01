@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
@@ -60,9 +60,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                 child: StreamBuilder(
                   stream: FirebaseFirestore.instance
                       .collection('orders')
-                      .where('user-id',
-                          isEqualTo:
-                              user!.uid)
+                      .where('user-id', isEqualTo: user!.uid)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.active) {
@@ -74,11 +72,20 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                           );
                         }
 
-                        return ListView.builder(padding: EdgeInsets.zero,
-                          itemCount: snapshot.data!.docs.length,
+                        // Sort the data by timestamp
+                        final sortedDocs = snapshot.data!.docs
+                          ..sort((a, b) {
+                            final aTimestamp = a['timestamp'] as Timestamp;
+                            final bTimestamp = b['timestamp'] as Timestamp;
+                            return bTimestamp.compareTo(aTimestamp);
+                          });
+
+                        return ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: sortedDocs.length,
                           itemBuilder: (context, index) {
                             Map<String, dynamic> orders =
-                                snapshot.data!.docs[index].data();
+                                sortedDocs[index].data();
                             List<dynamic> itemList = orders['items'];
 
                             return FutureBuilder<DocumentSnapshot>(
@@ -156,16 +163,49 @@ class _MyOrderPageItemListsState extends State<MyOrderPageItemLists> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4),
       child: SingleChildScrollView(
         child: ClipRRect(
           borderRadius: const BorderRadius.all(Radius.circular(20)),
           child: Container(
             margin: const EdgeInsets.all(4),
-            decoration: const BoxDecoration(color: Color.fromARGB(255, 208, 212, 215)),
+            decoration:
+                const BoxDecoration(color: Color.fromARGB(255, 208, 212, 215)),
             padding: const EdgeInsets.all(10),
             child: Column(
               children: [
+                Text(
+                  ' ${widget.status.toUpperCase()}',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: (widget.status == 'pending')
+                          ? Color.fromARGB(255, 203, 53, 42)
+                          : const Color.fromARGB(255, 46, 168, 50)),
+                ),
+                const SizedBox(height: 10,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Text('Order Id: ',
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w700)),
+                        Text(widget.orderid,
+                            style: const TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                    Text(
+                        DateFormat.yMd()
+                            .add_jm()
+                            .format(widget.timestamp.toDate()),
+                        style: const TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w600)),
+                  ],
+                ),
+                const SizedBox(height: 10,),
                 ListView.builder(
                   shrinkWrap: true, // Set shrinkWrap to true
                   padding: EdgeInsets.zero,
@@ -186,16 +226,22 @@ class _MyOrderPageItemListsState extends State<MyOrderPageItemLists> {
                                 style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w600),
                               ),
-                              
-                              Text('QN: ${itemMap['quantity'].toString()}',style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.w400),),
-                                    Row(
+                              Text(
+                                'Quantity: ${itemMap['quantity'].toString()}',
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w400),
+                              ),
+                              Row(
                                 children: [
-                                  const Icon(Icons.currency_rupee_rounded,size: 18,),
+                                  const Icon(
+                                    Icons.currency_rupee_rounded,
+                                    size: 18,
+                                  ),
                                   Text(
-                                    itemMap['itemPrice'].toString() ,
+                                    itemMap['itemPrice'].toString(),
                                     style: const TextStyle(
-                                        fontSize: 18, fontWeight: FontWeight.w400),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w400),
                                   ),
                                 ],
                               ),
@@ -218,43 +264,10 @@ class _MyOrderPageItemListsState extends State<MyOrderPageItemLists> {
                     );
                   },
                 ),
-                SizedBox(height: 30,),
                 SizedBox(
                   width: double.infinity,
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              const Text('Order Id: ',
-                                  style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700)),
-                              Text(widget.orderid,
-                                  style: const TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600)),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              const Text('Time: ',
-                                  style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700)),
-                              Text(
-                                  DateFormat.yMd()
-                                      .add_jm()
-                                      .format(widget.timestamp.toDate()),
-                                  style: const TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600)),
-                            ],
-                          ),
-                        ],
-                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -270,17 +283,14 @@ class _MyOrderPageItemListsState extends State<MyOrderPageItemLists> {
                                       fontWeight: FontWeight.w500)),
                             ],
                           ),
-                          
-                          Text(' ${(widget.status=='pending')?'Status: ${widget.status}':'Status: ${widget.status}'}',style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600)),
                           Row(
                             children: [
                               const Icon(Icons.currency_rupee_sharp),
-                              Text(widget.price.toString(),
-                                  style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w600)),
+                              Text(
+                                widget.price.toString(),
+                                style: const TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.w600),
+                              ),
                             ],
                           ),
                         ],
