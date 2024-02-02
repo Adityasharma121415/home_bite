@@ -144,6 +144,7 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                                     price: userMap["Price"],
                                     rating: userMap["Rating"],
                                     itemid: userMap["item-id"],
+                                    isVeg: userMap["isVeg"]?? true,
                                   );
                                 } else {
                                   return SellerEachItemListElement(
@@ -154,6 +155,7 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                                     price: userMap["Price"],
                                     rating: userMap["Rating"],
                                     itemid: userMap["item-id"],
+                                    isVeg: userMap["isVeg"]?? true,
                                   );
                                 }
                               },

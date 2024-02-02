@@ -1,8 +1,10 @@
-import 'dart:developer';
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:home_bite/user_screens/homepage.dart';
 import 'package:home_bite/user_screens/my_cart_functionality.dart';
 
 class MyCartPage extends StatefulWidget {
@@ -153,7 +155,8 @@ class _MyCartPageState extends State<MyCartPage> {
                                     // totalamt += itemData['Price'] *
                                     //     cartItemMap['quantity'];
                                     return CartItemDesign(
-                                      cookName: cookData['name'] ?? 'Unknown Cook',
+                                      cookName:
+                                          cookData['name'] ?? 'Unknown Cook',
                                       name: itemData['Name'] ?? 'Unknown Item',
                                       price: itemData['Price'] ?? 0,
                                       quantity: cartItemMap['quantity'] ?? 0,
@@ -191,7 +194,8 @@ class _MyCartPageState extends State<MyCartPage> {
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return const Center(child:  CircularProgressIndicator());
+                              return const Center(
+                                  child: CircularProgressIndicator());
                             }
                             if (snapshot.hasError) {
                               return Text('Error: ${snapshot.error}');
@@ -225,8 +229,38 @@ class _MyCartPageState extends State<MyCartPage> {
                   GestureDetector(
                     onTap: () async {
                       if (cartToOrder != null && checkoutamount != null) {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return Dialog(
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    SizedBox(width: 20),
+                                    Text("Placing Order..."),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
                         await handleCheckout(
                             cartToOrder, checkoutamount, user!.uid);
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text('Order placed successfully!'),
+                        ));
+                        Navigator.popUntil(context, (route) => route.isFirst);
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HomePage(),
+                            ));
                       }
                     },
                     child: Container(
@@ -256,8 +290,6 @@ class _MyCartPageState extends State<MyCartPage> {
       ),
     );
   }
-
-
 
   Future<void> handleCheckout(
       List<dynamic>? cartToOrder, num? checkoutamount, String userId) async {

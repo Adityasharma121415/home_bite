@@ -80,6 +80,7 @@ class SearchScreen extends StatelessWidget {
                               price: itemDetails["Price"],
                               rating: itemDetails["Rating"],
                               itemid: itemDetails["item-id"],
+                              isVeg: itemDetails["isVeg"]?? true,
                             );
                           } else {
                             return SellerEachItemListElement(
@@ -90,6 +91,7 @@ class SearchScreen extends StatelessWidget {
                               price: itemDetails["Price"],
                               rating: itemDetails["Rating"],
                               itemid: itemDetails["item-id"],
+                              isVeg: itemDetails["isVeg"]?? true,
                             );
                           }
                         },

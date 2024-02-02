@@ -14,6 +14,7 @@ final TextEditingController _ratingController = TextEditingController();
 
 void addNewItem(BuildContext context, String categoryId, String cookId) {
   File? newItemPic;
+  bool isVeg = true;
 
   void showErrorDialog(BuildContext context, String errorMessage) {
     showDialog(
@@ -118,6 +119,15 @@ void addNewItem(BuildContext context, String categoryId, String cookId) {
                     const SizedBox(
                       height: 20,
                     ),
+                    CheckboxListTile(
+                      title: const Text('Veg Food'),
+                      value: isVeg,
+                      onChanged: (newValue) {
+                        setState(() {
+                          isVeg = newValue!;
+                        });
+                      },
+                    ),
                     Row(
                       children: [
                         TextButton(
@@ -167,7 +177,7 @@ void addNewItem(BuildContext context, String categoryId, String cookId) {
                                 String downloadURL =
                                     await taskSnapshot.ref.getDownloadURL();
                                 await uploadItemToFirestore(
-                                    categoryId, cookId, downloadURL);
+                                    categoryId, cookId, downloadURL, isVeg);
                                 newItemPic = null;
                                 _nameController.clear();
                                 _priceController.clear();
@@ -198,7 +208,7 @@ void addNewItem(BuildContext context, String categoryId, String cookId) {
 }
 
 Future<void> uploadItemToFirestore(
-    String categoryId, String cookId, String downloadURL) async {
+    String categoryId, String cookId, String downloadURL, bool isVeg) async {
   String itemName = _nameController.text;
   int itemPrice = int.parse(_priceController.text);
   double itemRating = double.parse(_ratingController.text);
@@ -215,10 +225,9 @@ Future<void> uploadItemToFirestore(
       'category-id': categoryId,
       'cook-id': cookId,
       'image': imageURL,
-      // Add more fields as needed
+      'isVeg': isVeg, // Added field for veg or non-veg
     });
 
-    // Get the document ID assigned by Firestore and update 'item-id'
     String newItemId = newItemRef.id;
     await newItemRef.update({'item-id': newItemId});
 

@@ -16,6 +16,7 @@ class SellerEachItemListElement extends StatefulWidget {
     required this.rating,
     required this.image,
     required this.itemid,
+    required this.isVeg,
     Key? key,
   }) : super(key: key);
 
@@ -26,6 +27,7 @@ class SellerEachItemListElement extends StatefulWidget {
   final String name;
   final String image;
   final String itemid;
+  final bool isVeg;
 
   @override
   State<SellerEachItemListElement> createState() {
@@ -76,6 +78,7 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                       width: 60,
                     ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         const SizedBox(
                           width: 20,
@@ -107,6 +110,10 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                             ),
                           ],
                         ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        
                       ],
                     ),
                     const SizedBox(
@@ -127,6 +134,18 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
+                        SizedBox(width: 80,),
+                        SizedBox(
+                          width: 19,
+                          height: 19,
+                          child: (widget.isVeg)
+                              ? Image.asset(
+                                  'assets/images/vegicon.png',
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.asset('assets/images/nonvegicon.png',
+                                  fit: BoxFit.cover),
+                        ),
                       ],
                     ),
                     const SizedBox(
@@ -138,7 +157,7 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                           width: 20,
                         ),
                         const Icon(Icons.person_rounded,
-                            color: Color.fromARGB(255, 24, 121, 7), size: 22),
+                            color: Color.fromARGB(255, 177, 25, 177), size: 22),
                         Text(
                           widget.cookName,
                           style: const TextStyle(
@@ -153,7 +172,7 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                               width: 20,
                             ),
                             const Icon(Icons.my_location_rounded,
-                                color: Color.fromARGB(255, 231, 4, 4),
+                                color: Color.fromARGB(255, 38, 4, 231),
                                 size: 21),
                             Text(
                               widget.location,
@@ -205,7 +224,11 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                   // Show the bottom modal sheet on "Edit" button press
                   _showEditModal(context);
                 },
-                icon: const Icon(Icons.edit_note_rounded, color: Color.fromARGB(255, 57, 165, 61),size: 24,),
+                icon: const Icon(
+                  Icons.edit_note_rounded,
+                  color: Color.fromARGB(255, 57, 165, 61),
+                  size: 24,
+                ),
                 label: const Text('Edit'),
               ),
               const SizedBox(
@@ -216,7 +239,8 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                   deleteDocumentWithConfirmation(
                       context, 'menu', widget.itemid);
                 },
-                icon: const Icon(Icons.delete_rounded, color: Color.fromARGB(255, 201, 68, 59),size:22),
+                icon: const Icon(Icons.delete_rounded,
+                    color: Color.fromARGB(255, 201, 68, 59), size: 22),
                 label: const Text('Delete'),
               ),
             ],
@@ -232,8 +256,10 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Delete',),
-          titleTextStyle: TextStyle(fontSize: 20,color:Colors.black),
+          title: Text(
+            'Confirm Delete',
+          ),
+          titleTextStyle: TextStyle(fontSize: 20, color: Colors.black),
           content: Text('Are you sure you want to delete this Item?'),
           actions: [
             TextButton(
@@ -360,7 +386,9 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                                     return const Dialog(
                                       child: Padding(
                                         padding: EdgeInsets.all(20.0),
-                                        child: Row(crossAxisAlignment: CrossAxisAlignment.center,
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             CircularProgressIndicator(),

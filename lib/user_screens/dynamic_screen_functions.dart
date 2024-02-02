@@ -17,6 +17,7 @@ class SellerEachItemListElement extends StatefulWidget {
     required this.rating,
     required this.image,
     required this.itemid,
+    required this.isVeg,
     super.key,
   });
 
@@ -27,6 +28,7 @@ class SellerEachItemListElement extends StatefulWidget {
   final String name;
   final String image;
   final String itemid;
+  final bool isVeg;
 
   @override
   State<SellerEachItemListElement> createState() {
@@ -158,7 +160,7 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                       width: 20,
                     ),
                     const Icon(Icons.person_rounded,
-                        color: Color.fromARGB(255, 24, 121, 7), size: 22),
+                        color: Color.fromARGB(255, 215, 40, 180), size: 22),
                     Text(
                       widget.cookName,
                       style: const TextStyle(
@@ -173,7 +175,7 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                             width: 20,
                           ),
                           const Icon(Icons.my_location_rounded,
-                              color: Color.fromARGB(255, 231, 4, 4), size: 21),
+                              color: Color.fromARGB(255, 19, 4, 231), size: 21),
                           Text(
                             widget.location,
                             style: const TextStyle(
@@ -187,6 +189,15 @@ class _SellerEachItemListElementState extends State<SellerEachItemListElement> {
                     ),
                   ],
                 ),
+                SizedBox(height: 10,),
+                Row(
+                  children: [ const SizedBox(
+                  width: 20,
+                ),
+                SizedBox(width: 19,height: 19,
+                  child: (widget.isVeg)?Image.asset('assets/images/vegicon.png',fit: BoxFit.cover,):Image.asset('assets/images/nonvegicon.png',fit: BoxFit.cover),),
+                  ]
+                )
               ],
             ),
           ),
