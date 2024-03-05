@@ -1,5 +1,4 @@
 // ignore_for_file: use_build_context_synchronously
-
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:home_bite/seller_screens/seller_homepage.dart';
 import 'package:home_bite/user_screens/forgotpassword.dart';
-
 import 'package:home_bite/user_screens/homepage.dart';
 import 'package:home_bite/user_screens/signuppage.dart';
 import 'package:shared_preferences/shared_preferences.dart';

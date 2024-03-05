@@ -24,13 +24,20 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
   @override
   Widget build(context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: (){
-        
-      },
-      shape: const CircleBorder(eccentricity: 1),
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-      foregroundColor: const Color.fromARGB(255, 196, 16, 31),
-      child: const Icon(Icons.filter_alt),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MyCartPage(),
+            ),
+          );
+          setState(() {});
+        },
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        foregroundColor: Color.fromARGB(255, 8, 92, 5),
+        child: const Icon(Icons.shopping_cart_checkout),
       ),
       body: Center(
         child: Column(
@@ -54,35 +61,35 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                           Navigator.pop(context);
                         },
                       ),
-                      SizedBox(
-                        child: ElevatedButton.icon(
-                          style: const ButtonStyle(
-                            shape: MaterialStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(15),
-                                ),
-                              ),
-                            ),
-                            shadowColor: MaterialStatePropertyAll(Colors.white),
-                          ),
-                          onPressed: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MyCartPage(),
-                              ),
-                            );
-                            setState(() {
-                              
-                            });
-                          },
-                          icon: const Icon(
-                            Icons.shopping_cart,
-                          ),
-                          label: const Text('Go to Cart'),
-                        ),
-                      ),
+                      // SizedBox(
+                      //   child: ElevatedButton.icon(
+                      //     style: const ButtonStyle(
+                      //       shape: MaterialStatePropertyAll(
+                      //         RoundedRectangleBorder(
+                      //           borderRadius: BorderRadius.all(
+                      //             Radius.circular(15),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //       shadowColor: MaterialStatePropertyAll(Colors.white),
+                      //     ),
+                      //     onPressed: () async {
+                      //       await Navigator.push(
+                      //         context,
+                      //         MaterialPageRoute(
+                      //           builder: (context) => const MyCartPage(),
+                      //         ),
+                      //       );
+                      //       setState(() {
+
+                      //       });
+                      //     },
+                      //     icon: const Icon(
+                      //       Icons.shopping_cart,
+                      //     ),
+                      //     label: const Text('Go to Cart'),
+                      //   ),
+                      // ),
                     ],
                   ),
                   const SizedBox(height: 25),
@@ -92,14 +99,12 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                         textStyle: const TextStyle(fontSize: 38)),
                   ),
                   const SizedBox(height: 10),
-                  
                 ],
               ),
             ),
             Expanded(
               child: SizedBox(
                 width: double.infinity,
-                
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection("menu")
@@ -114,7 +119,7 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                             child: Text("No items found in this category."),
                           );
                         }
-              
+
                         return ListView.builder(
                           padding: EdgeInsets.zero,
                           itemCount: snapshot.data!.docs.length,
@@ -122,20 +127,21 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                             Map<String, dynamic> userMap =
                                 snapshot.data!.docs[index].data()
                                     as Map<String, dynamic>;
-              
+
                             return FutureBuilder<DocumentSnapshot>(
                               future: FirebaseFirestore.instance
                                   .collection('cooks')
                                   .doc(userMap['cook-id'])
                                   .get(),
                               builder: (BuildContext context,
-                                  AsyncSnapshot<DocumentSnapshot> cookSnapshot) {
+                                  AsyncSnapshot<DocumentSnapshot>
+                                      cookSnapshot) {
                                 if (cookSnapshot.connectionState ==
                                     ConnectionState.done) {
                                   Map<String, dynamic>? cookData =
                                       cookSnapshot.data?.data()
                                           as Map<String, dynamic>?;
-              
+
                                   return SellerEachItemListElement(
                                     cookName: cookData!["name"],
                                     image: userMap["image"],
@@ -144,7 +150,7 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                                     price: userMap["Price"],
                                     rating: userMap["Rating"],
                                     itemid: userMap["item-id"],
-                                    isVeg: userMap["isVeg"]?? true,
+                                    isVeg: userMap["isVeg"] ?? true,
                                   );
                                 } else {
                                   return SellerEachItemListElement(
@@ -155,7 +161,7 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
                                     price: userMap["Price"],
                                     rating: userMap["Rating"],
                                     itemid: userMap["item-id"],
-                                    isVeg: userMap["isVeg"]?? true,
+                                    isVeg: userMap["isVeg"] ?? true,
                                   );
                                 }
                               },
@@ -180,8 +186,3 @@ class _DynamicMenuPageState extends State<DynamicMenuPage> {
     );
   }
 }
-
-
-
-
-

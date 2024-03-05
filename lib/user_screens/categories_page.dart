@@ -94,7 +94,6 @@ class _CategoryPageState extends State<CategoryPage> {
                           child: CircularProgressIndicator(),
                         );
 
-                        // Loading indicator while fetching data
                       }
 
                       if (snapshot.hasError) {

@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:home_bite/seller_screens/seller_homepage.dart';
 import 'package:home_bite/user_screens/homepage.dart';
 import 'package:home_bite/user_screens/spalsh_screen.dart';
-
 import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
